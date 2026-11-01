@@ -39,6 +39,9 @@ func _ready():
 	map_button.pressed.connect(_on_map_pressed)
 	main_menu_button.pressed.connect(_on_main_menu_pressed)
 	quit_button.pressed.connect(_on_quit_pressed)
+	# 目标场景不存在时隐藏对应按钮，避免点击后跳转失败
+	map_button.visible = SceneRoutes.is_available(SceneRoutes.MAP_SELECTION)
+	main_menu_button.visible = SceneRoutes.is_available(SceneRoutes.MAIN_MENU)
 	window_mode_option.item_selected.connect(_on_window_mode_selected)
 	resolution_option.item_selected.connect(_on_resolution_selected)
 	
@@ -170,13 +173,13 @@ func _on_cancel_pressed():
 
 # 地图按钮回调
 func _on_map_pressed():
-	hide_settings()
-	get_tree().change_scene_to_file("res://scene/MapSelection.tscn")
+	if SceneRoutes.change_to(get_tree(), SceneRoutes.MAP_SELECTION):
+		hide_settings()
 
 # 主菜单按钮回调
 func _on_main_menu_pressed():
-	hide_settings()
-	get_tree().change_scene_to_file("res://scene/MainMenu.tscn")
+	if SceneRoutes.change_to(get_tree(), SceneRoutes.MAIN_MENU):
+		hide_settings()
 
 # 退出按钮回调
 func _on_quit_pressed():

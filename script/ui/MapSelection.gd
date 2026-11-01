@@ -9,8 +9,8 @@ func _on_office_selected():
 	# 设置办公室故事背景
 	BackgroundStoryManager.set_background("Office")
 	# 加载办公室场景
-	get_tree().change_scene_to_file("res://scene/maps/Office.tscn")
+	SceneRoutes.change_to(get_tree(), SceneRoutes.OFFICE)
 
 func _on_back_pressed():
 	# 返回主菜单
-	get_tree().change_scene_to_file("res://scene/MainMenu.tscn")
+	SceneRoutes.change_to(get_tree(), SceneRoutes.MAIN_MENU)

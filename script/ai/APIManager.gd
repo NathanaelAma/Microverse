@@ -37,6 +37,17 @@ func _on_settings_changed(new_settings: Dictionary):
 	current_settings = new_settings.duplicate()
 	print("[APIManager] 设置已更新 - API类型：", current_settings.api_type, "，模型：", current_settings.model)
 
+# 获取角色实际使用的AI设置（有独立设置则用独立设置，否则用默认设置）
+# 发送请求和解析响应都必须使用此函数，确保两者的API类型一致
+func get_ai_settings_for(character_name: String = "") -> Dictionary:
+	if character_name != "":
+		return SettingsManager.get_character_ai_settings(character_name)
+	return current_settings
+
+# 获取角色实际使用的API类型（用于解析响应）
+func get_api_type_for(character_name: String = "") -> String:
+	return get_ai_settings_for(character_name).get("api_type", "")
+
 # 生成对话（支持角色独立AI设置）
 func generate_dialog(prompt: String, character_name: String = "") -> HTTPRequest:
 	# 确保节点已经初始化
@@ -64,10 +75,9 @@ func generate_dialog(prompt: String, character_name: String = "") -> HTTPRequest
 				http_request.queue_free()
 		)
 	)
-	# 获取角色对应的AI设置
-	var ai_settings = current_settings
+	# 获取角色对应的AI设置（与解析响应时使用同一套设置）
+	var ai_settings = get_ai_settings_for(character_name)
 	if character_name != "":
-		ai_settings = SettingsManager.get_character_ai_settings(character_name)
 		print("[APIManager] 为角色 ", character_name, " 使用AI设置 - API类型：", ai_settings.api_type, "，模型：", ai_settings.model)
 	else:
 		print("[APIManager] 使用默认AI设置 - API类型：", ai_settings.api_type, "，模型：", ai_settings.model)
