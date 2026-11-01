@@ -114,7 +114,7 @@ func _on_office_selected():
     # 设置办公室故事背景
     BackgroundStoryManager.set_background("Office")
     # 加载场景
-    get_tree().change_scene_to_file("res://scene/Office.tscn")
+    get_tree().change_scene_to_file("res://scene/maps/Office.tscn")
 ```
 
 ### 2. 在 AI 对话中使用背景

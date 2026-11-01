@@ -576,7 +576,7 @@ func _on_decision_request_completed(result, _response_code, headers, body, char_
 		return
 	
 	# 使用APIConfig统一解析响应
-	var decision = APIConfig.parse_response(api_manager.current_settings.api_type, response)
+	var decision = _parse_ai_response(response, target_character)
 	if decision == "":
 		print("[AIAgent] %s 的API响应解析失败，使用默认决策" % target_character.name)
 		_execute_default_decision(target_character)
@@ -685,7 +685,7 @@ func _on_conversation_decision_completed(result, _response_code, headers, body, 
 		return
 	
 	# 使用APIConfig统一解析响应
-	var decision = APIConfig.parse_response(api_manager.current_settings.api_type, response)
+	var decision = _parse_ai_response(response, char_node)
 	if decision == "":
 		print("[AIAgent] %s 的聊天决策API响应解析失败" % char_node.name)
 		return
@@ -766,7 +766,7 @@ func _on_farewell_message_completed(result, _response_code, headers, body, char_
 		return
 	
 	# 使用APIConfig统一解析响应
-	var farewell_message = APIConfig.parse_response(api_manager.current_settings.api_type, response)
+	var farewell_message = _parse_ai_response(response, char_node)
 	if farewell_message == "":
 		print("[AIAgent] %s 的告别消息API响应解析失败" % char_node.name)
 		farewell_message = "好的，你先去忙其他事情了，回头聊。"
@@ -783,7 +783,7 @@ func _send_farewell_and_end_conversation(char_node, partner_node, farewell_messa
 	var dialog_manager = get_node("/root/DialogManager")
 	if dialog_manager:
 		# 创建对话气泡显示告别消息
-		var dialog_bubble_scene = preload("res://scene/UI/DialogBubble.tscn")
+		var dialog_bubble_scene = preload("res://scene/ui/DialogBubble.tscn")
 		var dialog_bubble = dialog_bubble_scene.instantiate()
 		get_tree().root.add_child(dialog_bubble)
 		dialog_bubble.target_node = char_node
@@ -881,7 +881,7 @@ func generate_thinking_content(char_node = null):
 	
 	print(prompt)
 	# 使用APIManager生成思考内容
-	var character_name = character.name if character else "Unknown"
+	var character_name = target_character.name if target_character else "Unknown"
 	var http_request = await api_manager.generate_dialog(prompt, character_name)
 	
 	# 断开之前可能存在的连接，避免重复连接
@@ -974,7 +974,7 @@ func _on_generate_tasks_completed(result, _response_code, headers, body, char_no
 		return
 	
 	# 解析AI生成的任务内容
-	var task_content = APIConfig.parse_response(api_manager.current_settings.api_type, response)
+	var task_content = _parse_ai_response(response, target_character)
 	if task_content == "":
 		print("[AIAgent] %s 的任务生成API响应解析失败，使用默认任务" % target_character.name)
 		_generate_default_tasks(target_character)
@@ -1068,7 +1068,7 @@ func _adjust_tasks(char_node = null):
 	prompt += "\n请只回复数字1、2或3，不要有任何其他文字。"
 	
 	# 使用APIManager生成决策
-	var character_name = character.name if character else "Unknown"
+	var character_name = target_character.name if target_character else "Unknown"
 	var http_request = await api_manager.generate_dialog(prompt, character_name)
 	
 	# 断开之前可能存在的连接
@@ -1098,7 +1098,7 @@ func _on_adjust_tasks_completed(result, _response_code, headers, body, char_node
 		return
 	
 	# 解析决策
-	var decision = APIConfig.parse_response(api_manager.current_settings.api_type, response)
+	var decision = _parse_ai_response(response, target_character)
 	if decision == "":
 		print("[AIAgent] %s 的任务调整API响应解析失败" % target_character.name)
 		return
@@ -1174,7 +1174,7 @@ func _continue_current_task(char_node = null):
 	prompt += "\n请只回复数字1、2、3或4，不要有任何其他文字。"
 	
 	# 使用APIManager生成决策
-	var character_name = character.name if character else "Unknown"
+	var character_name = target_character.name if target_character else "Unknown"
 	var http_request = await api_manager.generate_dialog(prompt, character_name)
 	
 	# 断开之前可能存在的连接
@@ -1204,7 +1204,7 @@ func _on_continue_task_completed(result, _response_code, headers, body, char_nod
 		return
 	
 	# 解析决策
-	var decision = APIConfig.parse_response(api_manager.current_settings.api_type, response)
+	var decision = _parse_ai_response(response, target_character)
 	if decision == "":
 		print("[AIAgent] %s 的任务调整API响应解析失败" % target_character.name)
 		return
@@ -1227,6 +1227,16 @@ func _on_continue_task_completed(result, _response_code, headers, body, char_nod
 			_complete_task(target_character, current_task)
 		_:
 			print("[AIAgent] %s 的任务执行决策无效：%s" % [target_character.name, decision])
+
+# 解析AI响应的辅助函数
+# 必须使用发送请求的角色的AI设置来解析：角色可能配置了与全局不同的API类型
+func _parse_ai_response(response, char_node = null) -> String:
+	var target_character = char_node if is_instance_valid(char_node) else character
+	var character_name = target_character.name if target_character else ""
+	if not response is Dictionary:
+		print("[AIAgent] %s 的API响应不是JSON对象" % character_name)
+		return ""
+	return APIConfig.parse_response(api_manager.get_api_type_for(character_name), response, character_name)
 
 # 添加记忆的辅助函数
 func _add_memory(target_character, content: String):
@@ -1258,7 +1268,7 @@ func _execute_task_movement(target_character, current_task):
 	prompt += "\n请只回复目标的名字，不要有任何其他文字。如果没有合适的目标，请回复'无合适目标'。"
 	print(prompt)
 	# 使用APIManager生成决策
-	var character_name = character.name if character else "Unknown"
+	var character_name = target_character.name if target_character else "Unknown"
 	var http_request = await api_manager.generate_dialog(prompt, character_name)
 	
 	# 断开之前可能存在的连接
@@ -1288,7 +1298,7 @@ func _on_task_movement_completed(result, _response_code, headers, body, char_nod
 		return
 	
 	# 解析目标
-	var target_name = APIConfig.parse_response(api_manager.current_settings.api_type, response)
+	var target_name = _parse_ai_response(response, target_character)
 	if target_name == "":
 		print("[AIAgent] %s 的任务移动API响应解析失败" % target_character.name)
 		return
@@ -1389,7 +1399,7 @@ func _execute_task_conversation(target_character, current_task):
 	prompt += "\n\n为了完成这个任务，你最想与谁交谈？请说明选择的原因，然后在最后一行只写出角色的名字。"
 	
 	# 使用APIManager生成决策
-	var character_name = character.name if character else "Unknown"
+	var character_name = target_character.name if target_character else "Unknown"
 	var http_request = await api_manager.generate_dialog(prompt, character_name)
 	
 	# 断开之前可能存在的连接
@@ -1419,7 +1429,7 @@ func _on_task_conversation_completed(result, _response_code, headers, body, char
 		return
 	
 	# 解析选择的角色
-	var chosen_name = APIConfig.parse_response(api_manager.current_settings.api_type, response)
+	var chosen_name = _parse_ai_response(response, target_character)
 	if chosen_name == "":
 		print("[AIAgent] %s 的任务对话API响应解析失败" % target_character.name)
 		return
@@ -1528,7 +1538,7 @@ func _execute_task_thinking(target_character, current_task):
 	prompt += "\n\n请用第一人称描述你的思考过程，体现出你的性格特点和说话风格（150-250字）。"
 	
 	# 使用APIManager生成思考内容
-	var character_name = character.name if character else "Unknown"
+	var character_name = target_character.name if target_character else "Unknown"
 	var http_request = await api_manager.generate_dialog(prompt, character_name)
 	
 	# 断开之前可能存在的连接
@@ -1558,7 +1568,7 @@ func _on_task_thinking_completed(result, _response_code, headers, body, char_nod
 		return
 	
 	# 解析思考内容
-	var thinking_content = APIConfig.parse_response(api_manager.current_settings.api_type, response)
+	var thinking_content = _parse_ai_response(response, target_character)
 	if thinking_content == "":
 		print("[AIAgent] %s 的任务思考API响应解析失败" % target_character.name)
 		return
@@ -1619,7 +1629,7 @@ func _on_thinking_request_completed(result, _response_code, headers, body, char_
 		return
 	
 	# 使用APIConfig统一解析响应
-	var thinking_content = APIConfig.parse_response(api_manager.current_settings.api_type, response)
+	var thinking_content = _parse_ai_response(response, target_character)
 	if thinking_content == "":
 		print("[AIAgent] %s 的思考内容API响应解析失败" % target_character.name)
 		return
@@ -1892,7 +1902,7 @@ func _handle_target_not_found(target_character, target_name: String, current_tas
 	print(prompt)
 	
 	# 使用APIManager生成决策
-	var character_name = character.name if character else "Unknown"
+	var character_name = target_character.name if target_character else "Unknown"
 	var http_request = await api_manager.generate_dialog(prompt, character_name)
 	
 	# 断开之前可能存在的连接
@@ -1922,7 +1932,7 @@ func _on_target_not_found_decision_completed(result, _response_code, headers, bo
 		return
 	
 	# 解析决策
-	var decision = APIConfig.parse_response(api_manager.current_settings.api_type, response)
+	var decision = _parse_ai_response(response, target_character)
 	if decision == "":
 		print("[AIAgent] %s 的找不到目标决策API响应解析失败" % target_character.name)
 		return
@@ -1983,7 +1993,7 @@ func _choose_room_to_search(target_character, target_name: String, current_task)
 	print(prompt)
 	
 	# 使用APIManager生成决策
-	var character_name = character.name if character else "Unknown"
+	var character_name = target_character.name if target_character else "Unknown"
 	var http_request = await api_manager.generate_dialog(prompt, character_name)
 	
 	# 断开之前可能存在的连接
@@ -2013,7 +2023,7 @@ func _on_room_choice_completed(result, _response_code, headers, body, char_node 
 		return
 	
 	# 解析选择
-	var choice = APIConfig.parse_response(api_manager.current_settings.api_type, response)
+	var choice = _parse_ai_response(response, target_character)
 	if choice == "":
 		print("[AIAgent] %s 的房间选择API响应解析失败" % target_character.name)
 		return
@@ -2071,7 +2081,7 @@ func _reschedule_task(target_character, current_task, failed_target_name: String
 	print(prompt)
 	
 	# 使用APIManager生成新任务
-	var character_name = character.name if character else "Unknown"
+	var character_name = target_character.name if target_character else "Unknown"
 	var http_request = await api_manager.generate_dialog(prompt, character_name)
 	
 	# 断开之前可能存在的连接
@@ -2101,7 +2111,7 @@ func _on_reschedule_task_completed(result, _response_code, headers, body, char_n
 		return
 	
 	# 解析新任务
-	var new_task_description = APIConfig.parse_response(api_manager.current_settings.api_type, response)
+	var new_task_description = _parse_ai_response(response, target_character)
 	if new_task_description == "":
 		print("[AIAgent] %s 的重新安排任务API响应解析失败" % target_character.name)
 		return

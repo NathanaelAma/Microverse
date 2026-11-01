@@ -111,9 +111,10 @@ static func _initialize():
 		"Claude",
 		"Claude (Anthropic)",
 		"https://api.anthropic.com/v1/messages",
-		["claude-3-5-sonnet-20241022", "claude-3-5-haiku-20241022", "claude-3-opus-20240229"],
+		["claude-opus-5-5", "claude-sonnet-5-5", "claude-haiku-5-5"],
 		true,
-		{"Content-Type": "application/json", "Authorization": "Bearer {api_key}", "anthropic-version": "2023-06-01"},
+		# Anthropic API 使用 x-api-key 认证（不是 Authorization: Bearer）
+		{"Content-Type": "application/json", "x-api-key": "{api_key}", "anthropic-version": "2026-10-21"},
 		"claude",
 		"claude"
 	)
@@ -212,9 +213,12 @@ static func build_request_data(api_type: String, model: String, prompt: String) 
 				}]
 			}
 		"claude":
+			# 当前Claude模型始终开启思考，思考token计入max_tokens，
+			# 因此留出余量；短对话场景使用low effort以降低延迟和成本
 			return {
 				"model": model,
-				"max_tokens": 1024,
+				"max_tokens": 4096,
+				"output_config": {"effort": "low"},
 				"messages": [{
 					"role": "user",
 					"content": prompt
@@ -283,13 +287,20 @@ static func parse_response(api_type: String, response: Dictionary, character_nam
 			return response.candidates[0].content.parts[0].text
 		
 		"claude":
-			if not "content" in response or response.content.size() == 0:
+			if response.get("stop_reason", "") == "refusal":
+				print("[APIConfig] %s 的Claude请求被拒绝（refusal）" % character_name)
+				return ""
+			if not "content" in response or not response.content is Array or response.content.size() == 0:
 				print("[APIConfig] %s 的Claude API响应格式错误：缺少content字段或为空" % character_name)
 				return ""
-			if not response.content[0].has("text"):
-				print("[APIConfig] %s 的Claude API响应格式错误：缺少text字段" % character_name)
-				return ""
-			return response.content[0].text
+			# content中可能先出现thinking块，只拼接type为text的块
+			var text := ""
+			for block in response.content:
+				if block is Dictionary and block.get("type", "") == "text":
+					text += str(block.get("text", ""))
+			if text == "":
+				print("[APIConfig] %s 的Claude API响应格式错误：没有text内容块" % character_name)
+			return text
 		
 		_:
 			print("[APIConfig] %s 未知的API类型，使用默认处理" % character_name)

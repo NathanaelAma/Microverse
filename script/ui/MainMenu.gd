@@ -7,8 +7,8 @@ func _ready():
 	$NinePatchRect/VBoxContainer/QuitButton.pressed.connect(_on_quit_pressed)
 
 func _on_start_pressed():
-	# 切换到地图选择场景
-	get_tree().change_scene_to_file("res://scene/MapSelection.tscn")
+	# 切换到地图选择场景（不存在时直接进入默认地图）
+	SceneRoutes.start_game(get_tree())
 
 func _on_settings_pressed():
 	# 使用全局设置界面（动态获取）

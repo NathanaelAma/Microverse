@@ -8,7 +8,7 @@ var conversation_id: String
 var is_active: bool = false
 
 # 对话相关的场景引用
-var dialog_bubble_scene = preload("res://scene/UI/DialogBubble.tscn")
+var dialog_bubble_scene = preload("res://scene/ui/DialogBubble.tscn")
 var chat_history_scene = preload("res://scene/ChatHistory.tscn")
 
 # AI相关脚本引用
@@ -17,6 +17,8 @@ var BackgroundStoryManager = preload("res://script/ai/background_story/Backgroun
 
 # HTTP请求对象
 var http_request: HTTPRequest
+# 发起当前请求的角色名（解析响应时需使用同一角色的AI设置）
+var request_character_name: String = ""
 
 # 信号
 signal conversation_ended(conversation_id: String)
@@ -118,7 +120,9 @@ func generate_dialog():
 		print("[ConversationManager] 无法获取APIManager")
 		return
 	
-	http_request = await api_manager.generate_dialog(prompt)
+	# 使用说话者的AI设置（支持角色独立AI设置）
+	request_character_name = speaker.name
+	http_request = await api_manager.generate_dialog(prompt, request_character_name)
 	
 	# 连接回调函数
 	if http_request and not http_request.request_completed.is_connected(_on_request_completed):
@@ -200,20 +204,23 @@ func _on_request_completed(result, response_code, headers, body):
 	
 	var response = JSON.parse_string(body.get_string_from_utf8())
 	var dialog_text = ""
+	if not response is Dictionary:
+		print("[对话系统] 响应JSON解析失败")
+		return
 	
-	# 获取设置
-	var settings_manager = null
+	# 获取APIManager
+	var api_manager = null
 	var main_loop = Engine.get_main_loop() as SceneTree
 	if main_loop and main_loop.root:
-		settings_manager = main_loop.root.get_node("SettingsManager")
+		api_manager = main_loop.root.get_node_or_null("APIManager")
 	
-	if not settings_manager:
-		print("[ConversationManager] 无法获取SettingsManager")
+	if not api_manager:
+		print("[ConversationManager] 无法获取APIManager")
 		return
-	var current_settings = settings_manager.get_settings()
 	
-	# 使用APIConfig统一解析响应
-	dialog_text = APIConfig.parse_response(current_settings.api_type, response)
+	# 使用发起请求的角色的API类型解析响应（与请求时的设置保持一致）
+	var api_type = api_manager.get_api_type_for(request_character_name)
+	dialog_text = APIConfig.parse_response(api_type, response, request_character_name)
 	if dialog_text == "":
 		print("[对话系统] 响应解析失败")
 		return
