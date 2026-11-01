@@ -1,51 +1,51 @@
 extends CanvasLayer
 
-# GlobalSettingsUI - 游戏设置界面管理
-# 现在使用SettingsManager统一管理所有设置
+# GlobalSettingsUI - game settings UI manager
+# All settings are now managed centrally by SettingsManager
 
-# 当前设置（从SettingsManager获取）
+# Current settings (from SettingsManager)
 var current_settings = {}
 
 @onready var settings_ui = $SettingsUI
-@onready var api_type_option = $SettingsUI/NinePatchRect/VBoxContainer/TabContainer/API设置/APITypeContainer/APITypeOption
-@onready var model_option = $SettingsUI/NinePatchRect/VBoxContainer/TabContainer/API设置/ModelContainer/ModelOption
-@onready var api_key_input = $SettingsUI/NinePatchRect/VBoxContainer/TabContainer/API设置/APIKeyContainer/APIKeyInput
-@onready var ai_label_checkbox = $SettingsUI/NinePatchRect/VBoxContainer/TabContainer/API设置/AILabelContainer/AILabelCheckBox
+@onready var api_type_option = $"SettingsUI/NinePatchRect/VBoxContainer/TabContainer/API Settings/APITypeContainer/APITypeOption"
+@onready var model_option = $"SettingsUI/NinePatchRect/VBoxContainer/TabContainer/API Settings/ModelContainer/ModelOption"
+@onready var api_key_input = $"SettingsUI/NinePatchRect/VBoxContainer/TabContainer/API Settings/APIKeyContainer/APIKeyInput"
+@onready var ai_label_checkbox = $"SettingsUI/NinePatchRect/VBoxContainer/TabContainer/API Settings/AILabelContainer/AILabelCheckBox"
 @onready var save_button = $SettingsUI/NinePatchRect/VBoxContainer/ButtonContainer/SaveButton
 @onready var cancel_button = $SettingsUI/NinePatchRect/VBoxContainer/ButtonContainer/CancelButton
-@onready var map_button = $SettingsUI/NinePatchRect/VBoxContainer/TabContainer/游戏/MapButton
-@onready var main_menu_button = $SettingsUI/NinePatchRect/VBoxContainer/TabContainer/游戏/MainMenuButton
-@onready var quit_button = $SettingsUI/NinePatchRect/VBoxContainer/TabContainer/游戏/QuitButton
-@onready var window_mode_option = $SettingsUI/NinePatchRect/VBoxContainer/TabContainer/游戏/WindowModeContainer/WindowModeOption
-@onready var resolution_option = $SettingsUI/NinePatchRect/VBoxContainer/TabContainer/游戏/ResolutionContainer/ResolutionOption
+@onready var map_button = $SettingsUI/NinePatchRect/VBoxContainer/TabContainer/Game/MapButton
+@onready var main_menu_button = $SettingsUI/NinePatchRect/VBoxContainer/TabContainer/Game/MainMenuButton
+@onready var quit_button = $SettingsUI/NinePatchRect/VBoxContainer/TabContainer/Game/QuitButton
+@onready var window_mode_option = $SettingsUI/NinePatchRect/VBoxContainer/TabContainer/Game/WindowModeContainer/WindowModeOption
+@onready var resolution_option = $SettingsUI/NinePatchRect/VBoxContainer/TabContainer/Game/ResolutionContainer/ResolutionOption
 
 func _ready():
 	hide_settings()
 	
-	# 初始化API类型选项
+	# Initialize API type options
 	for type in SettingsManager.api_types:
 		api_type_option.add_item(type)
 	
-	# 连接设置管理器
+	# Connect to the settings manager
 	SettingsManager.settings_changed.connect(_on_settings_changed)
 	current_settings = SettingsManager.get_settings()
 	update_ui()
-	print("[GlobalSettingsUI] 已连接设置管理器")
+	print("[GlobalSettingsUI] Connected to settings manager")
 	
-	# 连接信号
+	# Connect signals
 	api_type_option.item_selected.connect(_on_api_type_selected)
 	save_button.pressed.connect(_on_save_pressed)
 	cancel_button.pressed.connect(_on_cancel_pressed)
 	map_button.pressed.connect(_on_map_pressed)
 	main_menu_button.pressed.connect(_on_main_menu_pressed)
 	quit_button.pressed.connect(_on_quit_pressed)
-	# 目标场景不存在时隐藏对应按钮，避免点击后跳转失败
+	# Hide buttons whose target scene doesn't exist, so clicking them can't fail to navigate
 	map_button.visible = SceneRoutes.is_available(SceneRoutes.MAP_SELECTION)
 	main_menu_button.visible = SceneRoutes.is_available(SceneRoutes.MAIN_MENU)
 	window_mode_option.item_selected.connect(_on_window_mode_selected)
 	resolution_option.item_selected.connect(_on_resolution_selected)
 	
-	# 设置为单例，确保在场景转换时不被销毁
+	# Make this a singleton so it isn't destroyed on scene changes
 	set_process_input(true)
 
 func _input(event):
@@ -55,57 +55,57 @@ func _input(event):
 		else:
 			show_settings()
 
-# 设置变化回调
+# Settings changed callback
 func _on_settings_changed(new_settings: Dictionary):
 	current_settings = new_settings.duplicate()
 	update_ui()
-	print("[GlobalSettingsUI] 设置已更新，UI已刷新")
+	print("[GlobalSettingsUI] Settings updated, UI refreshed")
 
-# 更新UI显示
+# Update the UI display
 func update_ui():
-	# 设置API类型
+	# Set the API type
 	var api_index = SettingsManager.api_types.find(current_settings.api_type)
 	if api_index >= 0:
 		api_type_option.selected = api_index
 	
-	# 更新模型选项
+	# Update model options
 	model_option.clear()
 	var models = SettingsManager.get_models_for_api(current_settings.api_type)
 	for model in models:
 		model_option.add_item(model)
 	
-	# 选择当前模型
+	# Select the current model
 	var model_index = models.find(current_settings.model)
 	if model_index >= 0:
 		model_option.select(model_index)
 	
-	# 设置API Key
+	# Set the API key
 	api_key_input.text = current_settings.api_key
 	
-	# 设置AI标签显示复选框
+	# Set the AI label checkbox
 	ai_label_checkbox.button_pressed = current_settings.get("show_ai_model_label", true)
 	
-	# 根据API类型显示/隐藏API Key输入框
+	# Show/hide the API key input based on API type
 	api_key_input.get_parent().visible = current_settings.api_type != "Ollama"
 
-	# 初始化分辨率/窗口模式UI
+	# Initialize resolution/window mode UI
 	_init_display_options()
 	_sync_display_options()
 
-# API类型选择回调
+# API type selected callback
 func _on_api_type_selected(index):
 	current_settings.api_type = SettingsManager.api_types[index]
-	# 重置模型选择
+	# Reset model selection
 	var models = SettingsManager.get_models_for_api(current_settings.api_type)
 	current_settings.model = models[0]
 	update_ui()
 
-# 初始化窗口模式与分辨率选项
+# Initialize window mode and resolution options
 func _init_display_options():
 	if window_mode_option.get_item_count() == 0:
-		window_mode_option.add_item("窗口化")
-		window_mode_option.add_item("全屏")
-		window_mode_option.add_item("独占全屏")
+		window_mode_option.add_item("Windowed")
+		window_mode_option.add_item("Fullscreen")
+		window_mode_option.add_item("Exclusive Fullscreen")
 	if resolution_option.get_item_count() == 0:
 		for r in ["1280 x 720", "1600 x 900", "1920 x 1080", "2560 x 1440", "2880 x 1800", "3840 x 2160"]:
 			resolution_option.add_item(r)
@@ -136,11 +136,11 @@ func _sync_display_options():
 func _on_window_mode_selected(_i):
 	var t = window_mode_option.get_item_text(window_mode_option.selected)
 	match t:
-		"窗口化":
+		"Windowed":
 			current_settings.window_mode = "windowed"
-		"全屏":
+		"Fullscreen":
 			current_settings.window_mode = "fullscreen"
-		"独占全屏":
+		"Exclusive Fullscreen":
 			current_settings.window_mode = "exclusive_fullscreen"
 	resolution_option.disabled = current_settings.window_mode == "fullscreen"
 
@@ -151,48 +151,48 @@ func _on_resolution_selected(_i):
 		current_settings.screen_width = int(parts[0].strip_edges())
 		current_settings.screen_height = int(parts[1].strip_edges())
 
-# 保存按钮回调
+# Save button callback
 func _on_save_pressed():
 	current_settings.model = model_option.get_item_text(model_option.selected)
 	if current_settings.api_type != "Ollama":
 		current_settings.api_key = api_key_input.text
 	
-	# 保存AI标签显示设置
+	# Save the AI label display setting
 	current_settings.show_ai_model_label = ai_label_checkbox.button_pressed
 	
-	# 通过SettingsManager更新设置
+	# Update settings through SettingsManager
 	SettingsManager.update_settings(current_settings)
 	hide_settings()
-	print("[GlobalSettingsUI] 设置已保存并通知所有组件")
+	print("[GlobalSettingsUI] Settings saved and all components notified")
 
-# 取消按钮回调
+# Cancel button callback
 func _on_cancel_pressed():
 	current_settings = SettingsManager.get_settings()
 	update_ui()
 	hide_settings()
 
-# 地图按钮回调
+# Map button callback
 func _on_map_pressed():
 	if SceneRoutes.change_to(get_tree(), SceneRoutes.MAP_SELECTION):
 		hide_settings()
 
-# 主菜单按钮回调
+# Main menu button callback
 func _on_main_menu_pressed():
 	if SceneRoutes.change_to(get_tree(), SceneRoutes.MAIN_MENU):
 		hide_settings()
 
-# 退出按钮回调
+# Quit button callback
 func _on_quit_pressed():
 	get_tree().quit()
 
-# 显示设置界面
+# Show the settings UI
 func show_settings():
 	settings_ui.visible = true
 
-# 隐藏设置界面
+# Hide the settings UI
 func hide_settings():
 	settings_ui.visible = false
 
-# 检查设置UI是否可见
+# Check whether the settings UI is visible
 func is_settings_visible() -> bool:
 	return settings_ui.visible

@@ -1,24 +1,24 @@
 extends Control
 
 func _ready():
-	# 连接按钮信号
+	# Connect button signals
 	$NinePatchRect/VBoxContainer/StartButton.pressed.connect(_on_start_pressed)
 	$NinePatchRect/VBoxContainer/SettingsButton.pressed.connect(_on_settings_pressed)
 	$NinePatchRect/VBoxContainer/QuitButton.pressed.connect(_on_quit_pressed)
 
 func _on_start_pressed():
-	# 切换到地图选择场景（不存在时直接进入默认地图）
+	# Switch to the map selection scene (or go straight to the default map if it doesn't exist)
 	SceneRoutes.start_game(get_tree())
 
 func _on_settings_pressed():
-	# 使用全局设置界面（动态获取）
+	# Use the global settings UI (fetched dynamically)
 	var settings = get_node_or_null("/root/GlobalSettings")
 	if settings and settings.has_method("show_settings"):
 		settings.show_settings()
 	else:
-		# 如果找不到全局设置，则切换到GlobalSettingsUI场景
+		# If the global settings can't be found, switch to the GlobalSettingsUI scene
 		get_tree().change_scene_to_file("res://scene/ui/GlobalSettingsUI.tscn")
 
 func _on_quit_pressed():
-	# 退出游戏
+	# Quit the game
 	get_tree().quit()

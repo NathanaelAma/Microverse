@@ -1,99 +1,99 @@
 extends Node
 
-# 单例实例
+# Singleton instance
 static var instance = null
 
-# API URLs现在通过APIConfig统一管理
+# API URLs are now managed centrally by APIConfig
 
-# 当前设置（从SettingsManager获取）
+# Current settings (from SettingsManager)
 var current_settings = {}
 
-# 获取单例实例
+# Get the singleton instance
 static func get_instance() -> APIManager:
 	if instance == null:
 		instance = Engine.get_singleton("APIManager")
 		if instance == null:
-			print("[APIManager] 创建新的APIManager实例")
+			print("[APIManager] Creating a new APIManager instance")
 			instance = APIManager.new()
 	return instance
 
 func _enter_tree():
-	# 设置单例实例
+	# Set the singleton instance
 	if instance == null:
 		instance = self
 	
 	add_to_group("api_manager")
 
-# 在_ready中连接设置管理器
+# Connect to the settings manager in _ready
 func _ready():
-	# 连接设置变化信号
+	# Connect the settings changed signal
 	SettingsManager.settings_changed.connect(_on_settings_changed)
-	# 获取当前设置
+	# Get the current settings
 	current_settings = SettingsManager.get_settings()
-	print("[APIManager] 已连接设置管理器，当前设置 - API类型：", current_settings.api_type, "，模型：", current_settings.model)
+	print("[APIManager] Connected to settings manager, current settings - API type: ", current_settings.api_type, ", model: ", current_settings.model)
 
-# 设置变化回调
+# Settings changed callback
 func _on_settings_changed(new_settings: Dictionary):
 	current_settings = new_settings.duplicate()
-	print("[APIManager] 设置已更新 - API类型：", current_settings.api_type, "，模型：", current_settings.model)
+	print("[APIManager] Settings updated - API type: ", current_settings.api_type, ", model: ", current_settings.model)
 
-# 获取角色实际使用的AI设置（有独立设置则用独立设置，否则用默认设置）
-# 发送请求和解析响应都必须使用此函数，确保两者的API类型一致
+# Get the AI settings a character actually uses (its own settings if it has them, otherwise the defaults)
+# Both sending requests and parsing responses must use this function so their API types match
 func get_ai_settings_for(character_name: String = "") -> Dictionary:
 	if character_name != "":
 		return SettingsManager.get_character_ai_settings(character_name)
 	return current_settings
 
-# 获取角色实际使用的API类型（用于解析响应）
+# Get the API type a character actually uses (for parsing responses)
 func get_api_type_for(character_name: String = "") -> String:
 	return get_ai_settings_for(character_name).get("api_type", "")
 
-# 生成对话（支持角色独立AI设置）
+# Generate dialog (supports per-character AI settings)
 func generate_dialog(prompt: String, character_name: String = "") -> HTTPRequest:
-	# 确保节点已经初始化
+	# Make sure the node is initialized
 	if not is_inside_tree():
 		push_error("APIManager is not properly initialized!")
 		return null
 	
-	# 等待三帧以确保完全初始化
+	# Wait three frames to ensure full initialization
 	await get_tree().process_frame
 	await get_tree().process_frame
 	await get_tree().process_frame
 	
-	# 创建新的HTTPRequest节点，不清理之前的节点
+	# Create a new HTTPRequest node without cleaning up previous ones
 	var http_request = HTTPRequest.new()
-	# 为每个请求设置唯一名称
+	# Give each request a unique name
 	http_request.name = "HTTPRequest_" + str(Time.get_unix_time_from_system()) + "_" + str(randi())
 	add_child(http_request)
 	
-	# 设置请求完成后自动清理
+	# Automatically clean up after the request completes
 	http_request.request_completed.connect(func(result, response_code, headers, body):
-		# 延迟清理，确保回调函数执行完毕
+		# Defer cleanup so the callbacks finish running first
 		get_tree().create_timer(1.0).timeout.connect(func():
 			if http_request and is_instance_valid(http_request):
 				remove_child(http_request)
 				http_request.queue_free()
 		)
 	)
-	# 获取角色对应的AI设置（与解析响应时使用同一套设置）
+	# Get the character's AI settings (the same settings used when parsing the response)
 	var ai_settings = get_ai_settings_for(character_name)
 	if character_name != "":
-		print("[APIManager] 为角色 ", character_name, " 使用AI设置 - API类型：", ai_settings.api_type, "，模型：", ai_settings.model)
+		print("[APIManager] Using AI settings for character ", character_name, " - API type: ", ai_settings.api_type, ", model: ", ai_settings.model)
 	else:
-		print("[APIManager] 使用默认AI设置 - API类型：", ai_settings.api_type, "，模型：", ai_settings.model)
+		print("[APIManager] Using default AI settings - API type: ", ai_settings.api_type, ", model: ", ai_settings.model)
 	
-	# 使用APIConfig构建请求
+	# Build the request with APIConfig
 	var headers = APIConfig.build_headers(ai_settings.api_type, ai_settings.api_key)
 	var data = JSON.stringify(APIConfig.build_request_data(ai_settings.api_type, ai_settings.model, prompt))
 	var url = APIConfig.get_url(ai_settings.api_type, ai_settings.model)
 	
-	print("[APIManager] 发送请求到 ", ai_settings.api_type, " API，模型：", ai_settings.model)
+	print("[APIManager] Sending request to ", ai_settings.api_type, " API, model: ", ai_settings.model)
 	
-	print("[APIManager] 请求URL：", url)
-	print("[APIManager] 创建HTTPRequest节点：", http_request.name)
+	print("[APIManager] Request URL: ", url)
+	print("[APIManager] Created HTTPRequest node: ", http_request.name)
 	http_request.request(url, headers, HTTPClient.METHOD_POST, data)
 	return http_request
 
-# 生成AI决策
+# Generate an AI decision
 func generate_decision(prompt: String, character_name: String = "") -> HTTPRequest:
 	return await generate_dialog(prompt, character_name)

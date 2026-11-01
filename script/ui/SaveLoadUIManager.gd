@@ -1,5 +1,5 @@
-# SaveLoadUIManager.gd - 存档加载界面管理器
-# 作为CanvasLayer类型的UI，用于在游戏中显示存档界面
+# SaveLoadUIManager.gd - save/load UI manager
+# A CanvasLayer UI used to show the save screen in-game
 
 extends CanvasLayer
 
@@ -8,29 +8,29 @@ extends CanvasLayer
 func _ready():
 	hide_ui()
 	
-	# 设置为单例，确保在场景转换时不被销毁
+	# Make this a singleton so it isn't destroyed on scene changes
 	set_process_input(true)
 
-# 处理输入事件
+# Handle input events
 func _input(event):
-	if event.is_action_pressed("toggle_save_load"):  # F3键
+	if event.is_action_pressed("toggle_save_load"):  # F3 key
 		if save_load_ui.visible:
 			hide_ui()
 		else:
 			show_ui()
 		get_viewport().set_input_as_handled()
 	
-	# 处理ESC键关闭界面
+	# Close the UI with the ESC key
 	if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
 		if save_load_ui.visible:
 			hide_ui()
 			get_viewport().set_input_as_handled()
 
-# 显示存档界面
+# Show the save screen
 func show_ui():
 	save_load_ui.show()
 	save_load_ui.refresh_save_list()
 
-# 隐藏存档界面
+# Hide the save screen
 func hide_ui():
 	save_load_ui.hide()

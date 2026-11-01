@@ -1,36 +1,36 @@
-# .import文件问题解决方案
+# .import File Issue: Solution
 
-## 问题描述
-项目中存在带哈希值的.import文件，这些文件在不同环境中会产生不同的哈希值，导致运行困难和版本控制冲突。
+## Problem
+The project contained `.import` files with hash values. These hashes differ between environments, which made the project hard to run and caused version control conflicts.
 
-## 问题原因
-.import文件是Godot引擎自动生成的资源导入配置文件，包含：
-- 资源的唯一ID (uid)
-- 导入路径和哈希值
-- 压缩和处理参数
+## Cause
+`.import` files are resource import configuration files generated automatically by the Godot engine. They contain:
+- The resource's unique ID (uid)
+- Import paths and hash values
+- Compression and processing parameters
 
-这些文件的哈希值依赖于：
-- 本地文件系统路径
-- Godot版本
-- 系统环境
-- 资源文件的修改时间
+Their hash values depend on:
+- The local file system path
+- The Godot version
+- The system environment
+- The modification time of the resource files
 
-## 解决方案
-1. **更新.gitignore文件**：添加`*.import`规则，确保所有.import文件都被Git忽略
-2. **删除现有.import文件**：从项目目录中移除所有.import文件
-3. **让Godot重新生成**：当用户在自己的环境中打开项目时，Godot会自动重新生成适合当前环境的.import文件
+## Solution
+1. **Update `.gitignore`**: add a `*.import` rule so that all `.import` files are ignored by Git
+2. **Delete the existing `.import` files**: remove all `.import` files from the project directory
+3. **Let Godot regenerate them**: when users open the project in their own environment, Godot automatically regenerates `.import` files suited to that environment
 
-## 实施步骤
-✅ 1. 分析项目中的.import文件问题
-✅ 2. 检查.gitignore配置
-✅ 3. 更新.gitignore添加`*.import`规则
-✅ 4. 删除现有的.import文件
-✅ 5. 提交更改到版本控制
+## Implementation Steps
+✅ 1. Analyze the `.import` file issue in the project
+✅ 2. Check the `.gitignore` configuration
+✅ 3. Update `.gitignore` to add the `*.import` rule
+✅ 4. Delete the existing `.import` files
+✅ 5. Commit the changes to version control
 
-## 验证方法
-- 确认.import文件不再被Git跟踪
-- 在新环境中克隆项目，Godot应该能自动重新生成.import文件
-- 不同用户的.import文件不会产生版本控制冲突
+## Verification
+- Confirm that `.import` files are no longer tracked by Git
+- Clone the project in a fresh environment; Godot should regenerate the `.import` files automatically
+- `.import` files from different users no longer cause version control conflicts
 
-## 注意事项
-- .import文件删除后，首次在Godot中打开项目可能需要一些时间来重新导入资源
+## Notes
+- After the `.import` files are deleted, opening the project in Godot for the first time may take a while as resources are re-imported

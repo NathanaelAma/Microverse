@@ -1,206 +1,206 @@
-# 贡献指南
+# Contributing Guide
 
-感谢您对Microverse项目的关注！我们欢迎所有形式的贡献，包括但不限于代码、文档、测试、反馈和建议。
+Thank you for your interest in Microverse! We welcome all kinds of contributions, including but not limited to code, documentation, testing, feedback, and suggestions.
 
-## 🤝 如何贡献
+## 🤝 How to Contribute
 
-### 报告问题
+### Reporting Issues
 
-如果您发现了bug或有功能建议，请：
+If you find a bug or have a feature suggestion, please:
 
-1. 首先检查[现有Issues](https://github.com/KsanaDock/Microverse/issues)，确保问题尚未被报告
-2. 创建新的Issue，并提供以下信息：
-   - 清晰的问题描述
-   - 重现步骤（如果是bug）
-   - 预期行为和实际行为
-   - 系统环境信息（操作系统、Godot版本等）
-   - 相关截图或日志（如果适用）
+1. First check the [existing Issues](https://github.com/KsanaDock/Microverse/issues) to make sure it hasn't already been reported
+2. Create a new Issue with the following information:
+   - A clear description of the problem
+   - Steps to reproduce (for bugs)
+   - Expected and actual behavior
+   - System environment (operating system, Godot version, etc.)
+   - Relevant screenshots or logs (if applicable)
 
-### 提交代码
+### Submitting Code
 
-#### 准备工作
+#### Setup
 
-1. Fork本项目到您的GitHub账户
-2. 克隆您的Fork到本地：
+1. Fork this project to your GitHub account
+2. Clone your fork locally:
    ```bash
-   git clone https://github.com/KsanaDock/Microverse.git
-   cd microverse
+   git clone https://github.com/YOUR_USERNAME/Microverse.git
+   cd Microverse
    ```
-3. 添加上游仓库：
+3. Add the upstream repository:
    ```bash
    git remote add upstream https://github.com/KsanaDock/Microverse.git
    ```
 
-#### 开发流程
+#### Development Workflow
 
-1. 创建新的功能分支：
+1. Create a new feature branch:
    ```bash
    git checkout -b feature/your-feature-name
    ```
 
-2. 进行开发：
-   - 遵循项目的代码风格
-   - 添加必要的注释
-   - 确保代码可以正常运行
+2. Develop:
+   - Follow the project's code style
+   - Add comments where needed
+   - Make sure the code runs correctly
 
-3. 提交更改：
+3. Commit your changes:
    ```bash
    git add .
    git commit -m "feat: add your feature description"
    ```
 
-4. 推送到您的Fork：
+4. Push to your fork:
    ```bash
    git push origin feature/your-feature-name
    ```
 
-5. 创建Pull Request
+5. Open a Pull Request
 
-## 📝 代码规范
+## 📝 Code Style
 
-### GDScript编码规范
+### GDScript Conventions
 
-1. **命名约定**：
-   - 变量和函数使用snake_case：`my_variable`, `calculate_damage()`
-   - 常量使用UPPER_CASE：`MAX_HEALTH`, `DEFAULT_SPEED`
-   - 类名使用PascalCase：`CharacterManager`, `DialogService`
+1. **Naming**:
+   - Use snake_case for variables and functions: `my_variable`, `calculate_damage()`
+   - Use UPPER_CASE for constants: `MAX_HEALTH`, `DEFAULT_SPEED`
+   - Use PascalCase for class names: `CharacterManager`, `DialogService`
 
-2. **缩进和格式**：
-   - 使用Tab缩进（Godot默认）
-   - 每行最大长度100字符
-   - 函数之间空一行
+2. **Indentation and formatting**:
+   - Indent with tabs (the Godot default)
+   - Keep lines to a maximum of 100 characters
+   - Leave one blank line between functions
 
-3. **注释**：
-   - 为复杂逻辑添加注释
-   - 公共函数应有文档注释
-   - 使用中文注释（项目主要面向中文用户）
+3. **Comments**:
+   - Add comments for complex logic
+   - Public functions should have doc comments
+   - Write comments in English
 
-4. **示例**：
+4. **Example**:
    ```gdscript
-   # 计算角色之间的距离
-   # @param character1: 第一个角色
-   # @param character2: 第二个角色
-   # @return: 两个角色之间的距离
+   # Calculate the distance between two characters
+   # @param character1: the first character
+   # @param character2: the second character
+   # @return: the distance between the two characters
    func calculate_distance(character1: Node2D, character2: Node2D) -> float:
        var distance = character1.global_position.distance_to(character2.global_position)
        return distance
    ```
 
-### 文件组织
+### File Organization
 
-1. **脚本文件**：
-   - 按功能模块组织在`script/`目录下
-   - AI相关脚本放在`script/ai/`
-   - UI相关脚本放在`script/ui/`
+1. **Script files**:
+   - Organized by feature module under `script/`
+   - AI-related scripts go in `script/ai/`
+   - UI-related scripts go in `script/ui/`
 
-2. **场景文件**：
-   - 角色场景放在`scene/characters/`
-   - UI场景放在`scene/ui/`
-   - 地图场景放在`scene/maps/`
+2. **Scene files**:
+   - Character scenes go in `scene/characters/`
+   - UI scenes go in `scene/ui/`
+   - Map scenes go in `scene/maps/`
 
-3. **资源文件**：
-   - 图片资源放在`asset/`对应子目录
-   - 字体文件放在`asset/fonts/`
+3. **Asset files**:
+   - Image assets go in the matching subdirectory of `asset/`
+   - Font files go in `asset/fonts/`
 
-## 🧪 测试
+## 🧪 Testing
 
-虽然项目目前没有自动化测试框架，但请确保：
+The project doesn't have an automated test framework yet, but please make sure that:
 
-1. 您的代码在Godot编辑器中没有错误
-2. 相关功能可以正常运行
-3. 没有破坏现有功能
+1. Your code produces no errors in the Godot editor
+2. The related features work correctly
+3. Existing features are not broken
 
-## 📚 文档
+## 📚 Documentation
 
-如果您的贡献涉及新功能或API更改：
+If your contribution adds a feature or changes an API:
 
-1. 更新相关的文档文件
-2. 在代码中添加适当的注释
-3. 如果需要，更新README.md
+1. Update the relevant documentation files
+2. Add appropriate comments in the code
+3. Update README.md if needed
 
-## 🔄 Pull Request流程
+## 🔄 Pull Request Process
 
-1. **PR标题**：使用清晰的标题描述您的更改
-   - `feat: 添加新的AI角色系统`
-   - `fix: 修复对话系统内存泄漏`
-   - `docs: 更新API文档`
+1. **PR title**: Use a clear title that describes your change
+   - `feat: add a new AI character system`
+   - `fix: fix a memory leak in the dialog system`
+   - `docs: update API documentation`
 
-2. **PR描述**：
-   - 描述您的更改内容
-   - 说明更改的原因
-   - 列出相关的Issue（如果有）
-   - 提供测试说明
+2. **PR description**:
+   - Describe what you changed
+   - Explain why you made the change
+   - List related Issues (if any)
+   - Provide testing instructions
 
-3. **代码审查**：
-   - 维护者会审查您的代码
-   - 根据反馈进行必要的修改
-   - 所有检查通过后，PR将被合并
+3. **Code review**:
+   - Maintainers will review your code
+   - Make any necessary changes based on feedback
+   - Once all checks pass, the PR will be merged
 
-## 🎯 贡献领域
+## 🎯 Contribution Areas
 
-我们特别欢迎以下方面的贡献：
+We especially welcome contributions in the following areas:
 
-### 核心功能
-- AI对话系统优化
-- 新的AI服务提供商集成
-- 角色行为和决策系统
-- 记忆系统改进
+### Core Features
+- AI dialog system optimization
+- Integration of new AI service providers
+- Character behavior and decision-making systems
+- Memory system improvements
 
-### 用户界面
-- UI/UX改进
-- 新的主题和样式
-- 可访问性增强
-- 移动端适配
+### User Interface
+- UI/UX improvements
+- New themes and styles
+- Accessibility enhancements
+- Mobile support
 
-### 内容创作
-- 新的角色和背景故事
-- 场景和地图设计
-- 音效和音乐
-- 本地化和翻译
+### Content Creation
+- New characters and backstories
+- Scene and map design
+- Sound effects and music
+- Localization and translation
 
-### 技术改进
-- 性能优化
-- 代码重构
-- 错误处理改进
-- 日志和调试工具
+### Technical Improvements
+- Performance optimization
+- Code refactoring
+- Better error handling
+- Logging and debugging tools
 
-### 文档和教程
-- API文档
-- 使用教程
-- 开发指南
-- 示例项目
+### Documentation and Tutorials
+- API documentation
+- Usage tutorials
+- Development guides
+- Example projects
 
-## 🏷️ 提交消息规范
+## 🏷️ Commit Message Convention
 
-使用以下前缀来标识提交类型：
+Use the following prefixes to identify the commit type:
 
-- `feat:` 新功能
-- `fix:` 错误修复
-- `docs:` 文档更新
-- `style:` 代码格式化（不影响功能）
-- `refactor:` 代码重构
-- `test:` 测试相关
-- `chore:` 构建过程或辅助工具的变动
+- `feat:` new feature
+- `fix:` bug fix
+- `docs:` documentation update
+- `style:` code formatting (no functional change)
+- `refactor:` code refactoring
+- `test:` test-related changes
+- `chore:` build process or tooling changes
 
-示例：
+Examples:
 ```
-feat: 添加Kimi AI模型支持
-fix: 修复角色移动时的碰撞检测问题
-docs: 更新API配置文档
+feat: add Kimi AI model support
+fix: fix collision detection when characters move
+docs: update API configuration docs
 ```
 
-## 📞 联系方式
+## 📞 Contact
 
-如果您有任何问题或需要帮助：
+If you have any questions or need help:
 
-- 创建Issue进行讨论
-- 发送邮件至：ksanadock@example.com
-- 加入我们的社区讨论
+- Open an Issue for discussion
+- Email: ksanadock@example.com
+- Join our community discussions
 
-## 📄 许可证
+## 📄 License
 
-通过贡献代码，您同意您的贡献将在MIT许可证下发布。
+By contributing code, you agree that your contributions will be released under the MIT License.
 
 ---
 
-再次感谢您的贡献！每一个贡献都让Microverse变得更好。
+Thanks again for contributing! Every contribution makes Microverse better.

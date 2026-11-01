@@ -59,7 +59,7 @@ grow_vertical = 2
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_rvc10")
 theme_override_font_sizes/font_size = 24
-text = "设置"
+text = "Settings"
 horizontal_alignment = 1
 
 [node name="HSeparator" type="HSeparator" parent="SettingsUI/NinePatchRect/VBoxContainer"]
@@ -70,108 +70,108 @@ layout_mode = 2
 size_flags_vertical = 3
 current_tab = 0
 
-[node name="API设置" type="VBoxContainer" parent="SettingsUI/NinePatchRect/VBoxContainer/TabContainer"]
+[node name="API Settings" type="VBoxContainer" parent="SettingsUI/NinePatchRect/VBoxContainer/TabContainer"]
 layout_mode = 2
 metadata/_tab_index = 0
 
-[node name="APITypeContainer" type="HBoxContainer" parent="SettingsUI/NinePatchRect/VBoxContainer/TabContainer/API设置"]
+[node name="APITypeContainer" type="HBoxContainer" parent="SettingsUI/NinePatchRect/VBoxContainer/TabContainer/API Settings"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="SettingsUI/NinePatchRect/VBoxContainer/TabContainer/API设置/APITypeContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "API类型："
-
-[node name="APITypeOption" type="OptionButton" parent="SettingsUI/NinePatchRect/VBoxContainer/TabContainer/API设置/APITypeContainer"]
+[node name="Label" type="Label" parent="SettingsUI/NinePatchRect/VBoxContainer/TabContainer/API Settings/APITypeContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+text = "API type:"
 
-[node name="ModelContainer" type="HBoxContainer" parent="SettingsUI/NinePatchRect/VBoxContainer/TabContainer/API设置"]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="SettingsUI/NinePatchRect/VBoxContainer/TabContainer/API设置/ModelContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "模型："
-
-[node name="ModelOption" type="OptionButton" parent="SettingsUI/NinePatchRect/VBoxContainer/TabContainer/API设置/ModelContainer"]
+[node name="APITypeOption" type="OptionButton" parent="SettingsUI/NinePatchRect/VBoxContainer/TabContainer/API Settings/APITypeContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="APIKeyContainer" type="HBoxContainer" parent="SettingsUI/NinePatchRect/VBoxContainer/TabContainer/API设置"]
+[node name="ModelContainer" type="HBoxContainer" parent="SettingsUI/NinePatchRect/VBoxContainer/TabContainer/API Settings"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="SettingsUI/NinePatchRect/VBoxContainer/TabContainer/API设置/APIKeyContainer"]
+[node name="Label" type="Label" parent="SettingsUI/NinePatchRect/VBoxContainer/TabContainer/API Settings/ModelContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "API密钥："
+text = "Model:"
 
-[node name="APIKeyInput" type="LineEdit" parent="SettingsUI/NinePatchRect/VBoxContainer/TabContainer/API设置/APIKeyContainer"]
+[node name="ModelOption" type="OptionButton" parent="SettingsUI/NinePatchRect/VBoxContainer/TabContainer/API Settings/ModelContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-placeholder_text = "输入API密钥"
+
+[node name="APIKeyContainer" type="HBoxContainer" parent="SettingsUI/NinePatchRect/VBoxContainer/TabContainer/API Settings"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="SettingsUI/NinePatchRect/VBoxContainer/TabContainer/API Settings/APIKeyContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "API key:"
+
+[node name="APIKeyInput" type="LineEdit" parent="SettingsUI/NinePatchRect/VBoxContainer/TabContainer/API Settings/APIKeyContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Enter API key"
 secret = true
 clear_button_enabled = true
 
-[node name="AILabelContainer" type="HBoxContainer" parent="SettingsUI/NinePatchRect/VBoxContainer/TabContainer/API设置"]
+[node name="AILabelContainer" type="HBoxContainer" parent="SettingsUI/NinePatchRect/VBoxContainer/TabContainer/API Settings"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="SettingsUI/NinePatchRect/VBoxContainer/TabContainer/API设置/AILabelContainer"]
+[node name="Label" type="Label" parent="SettingsUI/NinePatchRect/VBoxContainer/TabContainer/API Settings/AILabelContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "显示AI模型标签："
+text = "Show AI model labels:"
 
-[node name="AILabelCheckBox" type="CheckBox" parent="SettingsUI/NinePatchRect/VBoxContainer/TabContainer/API设置/AILabelContainer"]
+[node name="AILabelCheckBox" type="CheckBox" parent="SettingsUI/NinePatchRect/VBoxContainer/TabContainer/API Settings/AILabelContainer"]
 layout_mode = 2
 
-[node name="游戏" type="VBoxContainer" parent="SettingsUI/NinePatchRect/VBoxContainer/TabContainer"]
+[node name="Game" type="VBoxContainer" parent="SettingsUI/NinePatchRect/VBoxContainer/TabContainer"]
 visible = true
 layout_mode = 2
 metadata/_tab_index = 1
 
-[node name="Label" type="Label" parent="SettingsUI/NinePatchRect/VBoxContainer/TabContainer/游戏"]
+[node name="Label" type="Label" parent="SettingsUI/NinePatchRect/VBoxContainer/TabContainer/Game"]
 layout_mode = 2
-text = "游戏设置"
+text = "Game Settings"
 horizontal_alignment = 1
 
-[node name="HSeparator" type="HSeparator" parent="SettingsUI/NinePatchRect/VBoxContainer/TabContainer/游戏"]
+[node name="HSeparator" type="HSeparator" parent="SettingsUI/NinePatchRect/VBoxContainer/TabContainer/Game"]
 layout_mode = 2
 
-[node name="WindowModeContainer" type="HBoxContainer" parent="SettingsUI/NinePatchRect/VBoxContainer/TabContainer/游戏"]
+[node name="WindowModeContainer" type="HBoxContainer" parent="SettingsUI/NinePatchRect/VBoxContainer/TabContainer/Game"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="SettingsUI/NinePatchRect/VBoxContainer/TabContainer/游戏/WindowModeContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "窗口模式："
-
-[node name="WindowModeOption" type="OptionButton" parent="SettingsUI/NinePatchRect/VBoxContainer/TabContainer/游戏/WindowModeContainer"]
+[node name="Label" type="Label" parent="SettingsUI/NinePatchRect/VBoxContainer/TabContainer/Game/WindowModeContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+text = "Window mode:"
 
-[node name="ResolutionContainer" type="HBoxContainer" parent="SettingsUI/NinePatchRect/VBoxContainer/TabContainer/游戏"]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="SettingsUI/NinePatchRect/VBoxContainer/TabContainer/游戏/ResolutionContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "分辨率："
-
-[node name="ResolutionOption" type="OptionButton" parent="SettingsUI/NinePatchRect/VBoxContainer/TabContainer/游戏/ResolutionContainer"]
+[node name="WindowModeOption" type="OptionButton" parent="SettingsUI/NinePatchRect/VBoxContainer/TabContainer/Game/WindowModeContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="MapButton" type="Button" parent="SettingsUI/NinePatchRect/VBoxContainer/TabContainer/游戏"]
+[node name="ResolutionContainer" type="HBoxContainer" parent="SettingsUI/NinePatchRect/VBoxContainer/TabContainer/Game"]
 layout_mode = 2
-text = "切换地图"
 
-[node name="MainMenuButton" type="Button" parent="SettingsUI/NinePatchRect/VBoxContainer/TabContainer/游戏"]
+[node name="Label" type="Label" parent="SettingsUI/NinePatchRect/VBoxContainer/TabContainer/Game/ResolutionContainer"]
 layout_mode = 2
-text = "返回主菜单"
+size_flags_horizontal = 3
+text = "Resolution:"
 
-[node name="QuitButton" type="Button" parent="SettingsUI/NinePatchRect/VBoxContainer/TabContainer/游戏"]
+[node name="ResolutionOption" type="OptionButton" parent="SettingsUI/NinePatchRect/VBoxContainer/TabContainer/Game/ResolutionContainer"]
 layout_mode = 2
-text = "退出游戏"
+size_flags_horizontal = 3
+
+[node name="MapButton" type="Button" parent="SettingsUI/NinePatchRect/VBoxContainer/TabContainer/Game"]
+layout_mode = 2
+text = "Switch Map"
+
+[node name="MainMenuButton" type="Button" parent="SettingsUI/NinePatchRect/VBoxContainer/TabContainer/Game"]
+layout_mode = 2
+text = "Back to Main Menu"
+
+[node name="QuitButton" type="Button" parent="SettingsUI/NinePatchRect/VBoxContainer/TabContainer/Game"]
+layout_mode = 2
+text = "Quit Game"
 
 [node name="ButtonContainer" type="HBoxContainer" parent="SettingsUI/NinePatchRect/VBoxContainer"]
 layout_mode = 2
@@ -181,9 +181,9 @@ alignment = 1
 [node name="CancelButton" type="Button" parent="SettingsUI/NinePatchRect/VBoxContainer/ButtonContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "取消"
+text = "Cancel"
 
 [node name="SaveButton" type="Button" parent="SettingsUI/NinePatchRect/VBoxContainer/ButtonContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "保存"
+text = "Save"

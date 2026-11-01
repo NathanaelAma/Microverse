@@ -1,26 +1,26 @@
 extends RefCounted
 class_name ConversationManager
 
-# 对话参与者
+# Conversation participants
 var speaker: CharacterBody2D
 var listener: CharacterBody2D
 var conversation_id: String
 var is_active: bool = false
 
-# 对话相关的场景引用
+# Scene references used by the conversation
 var dialog_bubble_scene = preload("res://scene/ui/DialogBubble.tscn")
 var chat_history_scene = preload("res://scene/ChatHistory.tscn")
 
-# AI相关脚本引用
+# AI-related script references
 var MemoryManager = preload("res://script/ai/memory/MemoryManager.gd")
 var BackgroundStoryManager = preload("res://script/ai/background_story/BackgroundStoryManager.gd")
 
-# HTTP请求对象
+# HTTP request object
 var http_request: HTTPRequest
-# 发起当前请求的角色名（解析响应时需使用同一角色的AI设置）
+# Name of the character that sent the current request (the response must be parsed with that character's AI settings)
 var request_character_name: String = ""
 
-# 信号
+# Signals
 signal conversation_ended(conversation_id: String)
 signal dialog_generated(speaker_name: String, dialog_text: String)
 
@@ -30,12 +30,12 @@ func _init(p_speaker: CharacterBody2D, p_listener: CharacterBody2D):
 	conversation_id = generate_conversation_id()
 	is_active = true
 	
-	# 确保说话者有ChatHistory节点
+	# Make sure the speaker has a ChatHistory node
 	if not speaker.has_node("ChatHistory"):
 		var chat_history = chat_history_scene.instantiate()
 		speaker.add_child(chat_history)
 	
-	# 确保听众也有ChatHistory节点
+	# Make sure the listener has a ChatHistory node too
 	if not listener.has_node("ChatHistory"):
 		var chat_history = chat_history_scene.instantiate()
 		listener.add_child(chat_history)
@@ -43,22 +43,22 @@ func _init(p_speaker: CharacterBody2D, p_listener: CharacterBody2D):
 func generate_conversation_id() -> String:
 	return "%s_%s_%d" % [speaker.name, listener.name, Time.get_unix_time_from_system()]
 
-# 开始对话
+# Start the conversation
 func start_conversation():
 	if not is_active:
 		return
 	
-	print("[ConversationManager] 开始对话：%s <-> %s" % [speaker.name, listener.name])
+	print("[ConversationManager] Starting conversation: %s <-> %s" % [speaker.name, listener.name])
 	await generate_dialog()
 
-# 结束对话
+# End the conversation
 func end_conversation():
 	if not is_active:
 		return
 	
-	print("[ConversationManager] 结束对话：%s" % conversation_id)
+	print("[ConversationManager] Ending conversation: %s" % conversation_id)
 	
-	# 保存聊天记录
+	# Save chat history
 	if speaker and speaker.has_node("ChatHistory"):
 		var history_node = speaker.get_node("ChatHistory")
 		history_node.save_history()
@@ -67,99 +67,99 @@ func end_conversation():
 		var history_node = listener.get_node("ChatHistory")
 		history_node.save_history()
 	
-	# 清理HTTP请求
+	# Clean up the HTTP request
 	if http_request and is_instance_valid(http_request):
 		http_request.queue_free()
 	
 	is_active = false
 	conversation_ended.emit(conversation_id)
 
-# 生成对话内容
+# Generate dialog content
 func generate_dialog():
 	if not is_active:
 		return
 	
-	print("\n[对话系统] 开始生成对话")
-	print("[对话系统] 说话者：", speaker.name)
-	print("[对话系统] 听众：", listener.name)
+	print("\n[Dialog System] Starting dialog generation")
+	print("[Dialog System] Speaker: ", speaker.name)
+	print("[Dialog System] Listener: ", listener.name)
 	
-	# 获取说话者和听众的人设
+	# Get the speaker's and listener's personas
 	var speaker_personality = CharacterPersonality.get_personality(speaker.name)
 	var listener_personality = CharacterPersonality.get_personality(listener.name)
 	
-	# 获取说话者的详细状态信息（包括记忆）
+	# Get the speaker's detailed status info (including memories)
 	var speaker_status = get_character_status_info(speaker)
 	
-	# 获取公司基本信息和员工名单信息
+	# Get company background and the employee roster
 	var company_basic_info = get_company_basic_info()
 	var company_info = get_company_employees_info()
 	
-	# 获取说话者的当前任务
+	# Get the speaker's current tasks
 	var speaker_tasks = get_character_tasks(speaker)
 	
-	# 获取之前的聊天记录
+	# Get previous chat history
 	var chat_history = ""
 	if speaker.has_node("ChatHistory"):
 		var history_node = speaker.get_node("ChatHistory")
 		chat_history = history_node.get_recent_conversation_with(listener.name, 5)
 	
-	# 构建对话prompt（不包含听众的记忆信息）
+	# Build the dialog prompt (without the listener's memories)
 	var prompt = build_dialog_prompt(speaker_personality, listener_personality, 
 									 speaker_status, "", company_basic_info, company_info, 
 									 speaker_tasks, chat_history)
 	
-	print("[对话系统] 生成的prompt：\n", prompt)
+	print("[Dialog System] Generated prompt:\n", prompt)
 	
-	# 使用APIManager生成对话
+	# Use APIManager to generate the dialog
 	var api_manager = null
 	var main_loop = Engine.get_main_loop() as SceneTree
 	if main_loop and main_loop.root:
 		api_manager = main_loop.root.get_node("APIManager")
 	
 	if not api_manager:
-		print("[ConversationManager] 无法获取APIManager")
+		print("[ConversationManager] Could not get APIManager")
 		return
 	
-	# 使用说话者的AI设置（支持角色独立AI设置）
+	# Use the speaker's AI settings (supports per-character AI settings)
 	request_character_name = speaker.name
 	http_request = await api_manager.generate_dialog(prompt, request_character_name)
 	
-	# 连接回调函数
+	# Connect the callback
 	if http_request and not http_request.request_completed.is_connected(_on_request_completed):
 		http_request.request_completed.connect(_on_request_completed)
 
-# 构建对话提示
+# Build the dialog prompt
 func build_dialog_prompt(speaker_personality: Dictionary, listener_personality: Dictionary,
 						 speaker_status: String, listener_status: String, 
 						 company_basic_info: String, company_info: String, speaker_tasks: String, 
 						 chat_history: String) -> String:
 	
-	# 获取故事背景和社会规则
+	# Get the background story and social rules
 	var background_prompt = BackgroundStoryManager.generate_background_prompt()
 	
-	var prompt = "你是一个员工，名字是%s。你的职位是：%s。你的性格是：%s。你的说话风格是：%s。" % [
+	var prompt = "You are an employee named %s. Your position is: %s. Your personality: %s. Your speaking style: %s." % [
 		speaker.name,
 		speaker_personality["position"],
 		speaker_personality["personality"],
 		speaker_personality["speaking_style"]
 	]
 	
-	# 添加故事背景和社会规则
+	# Add the background story and social rules
 	if not background_prompt.is_empty():
 		prompt += "\n\n" + background_prompt
 	
-	# 添加公司基本信息和员工名单信息
+	# Add company background and the employee roster
 	prompt += company_basic_info
 	prompt += company_info
 	
-	# 添加说话者状态信息（包括自己的记忆）
+	# Add the speaker's status info (including their own memories)
 	prompt += speaker_status
 	
-	# 添加当前任务信息
+	# Add current task info
 	prompt += speaker_tasks
 	
-	# 添加听众基本信息（不包括对方的记忆和详细状态）
-	prompt += "\n\n你正在与%s交谈。%s的职位是：%s。%s的性格是：%s。" % [
+	# Add basic listener info (excluding their memories and detailed status)
+	prompt += "\n\nYou are talking with %s. %s's position is: %s. %s's personality: %s." % [
 		listener.name,
 		listener.name,
 		listener_personality["position"],
@@ -167,37 +167,37 @@ func build_dialog_prompt(speaker_personality: Dictionary, listener_personality: 
 		listener_personality["personality"]
 	]
 	
-	# 注意：不再添加听众的详细状态信息（包括记忆），因为这些是对方的私人信息
+	# Note: the listener's detailed status (including memories) is no longer added, since that is the other person's private information
 	
-	# 添加聊天记录
+	# Add chat history
 	if chat_history != "":
-		prompt += "\n\n你们之前的对话记录：\n" + chat_history
+		prompt += "\n\nYour previous conversation:\n" + chat_history
 	
-	# 添加对话指导
-	prompt += "\n\n请根据你的性格、当前状态、心情、任务和与对方的关系，生成一段自然的对话。"
-	prompt += "\n注意："
-	prompt += "\n- 体现出你的性格特点和说话风格"
-	prompt += "\n- 考虑你当前的心情和健康状况"
-	prompt += "\n- 根据你们的关系程度调整亲密度"
-	prompt += "\n- 如果有相关记忆，可以提及"
-	prompt += "\n- 可以结合你的当前任务来聊天,当前突发的记忆优先级大于任务。"
-	prompt += "\n- 保持对话自然流畅，不要过于正式"
-	prompt += "\n- 对话长度控制在1-3句话，30字以内"
-	prompt += "\n- 只返回你要说的话，不要加任何描述、动作或其他内容"
-	prompt += "\n- 像真人一样直接说话，不要有'你说：'这样的前缀"
+	# Add dialog guidelines
+	prompt += "\n\nBased on your personality, current status, mood, tasks, and relationship with the other person, write a natural line of dialog."
+	prompt += "\nNotes:"
+	prompt += "\n- Reflect your personality traits and speaking style"
+	prompt += "\n- Take your current mood and health into account"
+	prompt += "\n- Adjust how familiar you are based on your relationship"
+	prompt += "\n- Mention relevant memories if there are any"
+	prompt += "\n- You can chat about your current task; recent unexpected memories take priority over tasks."
+	prompt += "\n- Keep the conversation natural and flowing, not too formal"
+	prompt += "\n- Keep it to 1-3 sentences, under 30 words"
+	prompt += "\n- Return only what you would say, without any descriptions, actions, or anything else"
+	prompt += "\n- Speak directly like a real person, without a prefix like 'You say:'"
 	
 	return prompt
 
-# HTTP请求完成回调
+# HTTP request completed callback
 func _on_request_completed(result, response_code, headers, body):
 	if not is_active:
 		return
 	
-	print("\n[对话系统] 收到API响应")
-	print("[对话系统] 响应状态码：", response_code)
+	print("\n[Dialog System] Received API response")
+	print("[Dialog System] Response status code: ", response_code)
 	
 	if result != HTTPRequest.RESULT_SUCCESS:
-		print("[对话系统] HTTP请求失败，错误码：", result)
+		print("[Dialog System] HTTP request failed, error code: ", result)
 		return
 	
 
@@ -205,136 +205,136 @@ func _on_request_completed(result, response_code, headers, body):
 	var response = JSON.parse_string(body.get_string_from_utf8())
 	var dialog_text = ""
 	if not response is Dictionary:
-		print("[对话系统] 响应JSON解析失败")
+		print("[Dialog System] Failed to parse response JSON")
 		return
 	
-	# 获取APIManager
+	# Get APIManager
 	var api_manager = null
 	var main_loop = Engine.get_main_loop() as SceneTree
 	if main_loop and main_loop.root:
 		api_manager = main_loop.root.get_node_or_null("APIManager")
 	
 	if not api_manager:
-		print("[ConversationManager] 无法获取APIManager")
+		print("[ConversationManager] Could not get APIManager")
 		return
 	
-	# 使用发起请求的角色的API类型解析响应（与请求时的设置保持一致）
+	# Parse the response with the API type of the character that sent the request (consistent with the request settings)
 	var api_type = api_manager.get_api_type_for(request_character_name)
 	dialog_text = APIConfig.parse_response(api_type, response, request_character_name)
 	if dialog_text == "":
-		print("[对话系统] 响应解析失败")
+		print("[Dialog System] Failed to parse response")
 		return
 	
-	# 创建对话气泡并显示对话内容
+	# Create a dialog bubble and show the dialog content
 	var dialog_bubble = dialog_bubble_scene.instantiate()
 	Engine.get_main_loop().root.add_child(dialog_bubble)
-	# 设置目标节点为说话的角色，这样气泡会自动跟随
+	# Target the speaking character so the bubble follows it automatically
 	dialog_bubble.target_node = speaker
 	dialog_bubble.show_dialog(dialog_text)
-	print("[对话系统] 生成的对话：", dialog_text)
+	print("[Dialog System] Generated dialog: ", dialog_text)
 	
-	# 保存对话记录到双方的ChatHistory中
-	# 格式化消息内容："说话者: 消息内容"
+	# Save the dialog to both participants' ChatHistory
+	# Message format: "Speaker: message content"
 	var formatted_message = speaker.name + ": " + dialog_text
 	
 	if speaker.has_node("ChatHistory"):
 		var speaker_history = speaker.get_node("ChatHistory")
 		speaker_history.add_message(listener.name, formatted_message)
-		print("说话者聊天记录保存成功")
+		print("Speaker chat history saved")
 	
 	if listener.has_node("ChatHistory"):
 		var listener_history = listener.get_node("ChatHistory")
 		listener_history.add_message(speaker.name, formatted_message)
-		print("听众聊天记录保存成功")
+		print("Listener chat history saved")
 	
-	# 发出对话生成信号
+	# Emit the dialog generated signal
 	dialog_generated.emit(speaker.name, dialog_text)
 	
-	# 让对方角色回复
+	# Let the other character reply
 	if listener and is_active:
-		# 交换说话者和听众的角色
+		# Swap speaker and listener
 		var temp = speaker
 		speaker = listener
 		listener = temp
-		# 生成对方的回复
+		# Generate the other character's reply
 		await generate_dialog()
 
-# 获取公司员工信息字符串
+# Get the company employee roster string
 func get_company_employees_info() -> String:
-	var employees_info = "\n\n公司员工名单及职位信息："
+	var employees_info = "\n\nCompany employee roster and positions:"
 	
-	# 遍历CharacterPersonality中的所有角色配置
+	# Iterate over all character configs in CharacterPersonality
 	for character_name in CharacterPersonality.PERSONALITY_CONFIG:
 		var personality = CharacterPersonality.PERSONALITY_CONFIG[character_name]
-		employees_info += "\n- " + character_name + "：" + personality["position"]
+		employees_info += "\n- " + character_name + ": " + personality["position"]
 	
-	employees_info += "\n注意：在生成任何内容时，只能提及以上列出的员工，不要创造新的角色名字。"
+	employees_info += "\nNote: when generating any content, only mention the employees listed above; do not invent new character names."
 	return employees_info
 
-# 获取公司基本信息字符串
+# Get the company basic info string
 func get_company_basic_info() -> String:
-	var company_info = "\n\n公司基本信息："
-	company_info += "\n你们公司的主要产品是《CountSheep》小游戏。"
-	company_info += "\n游戏宣传语：Can't Sleep? Count Sheep"
-	company_info += "\n游戏玩法：通过让用户数手机屏幕上跳过的小羊，然后有九宫格数字按钮来计数得分。"
-	company_info += "\n该游戏目前十分流行，吸引了许多跟时髦的小青年充值购买小羊皮肤和按键皮肤。"
+	var company_info = "\n\nCompany background:"
+	company_info += "\nYour company's main product is the mini-game \"CountSheep\"."
+	company_info += "\nGame slogan: Can't Sleep? Count Sheep"
+	company_info += "\nGameplay: users count the little sheep jumping across their phone screen, then tap a 3x3 grid of number buttons to enter the count and score points."
+	company_info += "\nThe game is currently very popular, attracting lots of trendy young people who pay for sheep skins and button skins."
 	return company_info
 
-# 获取角色详细状态信息
+# Get detailed character status info
 func get_character_status_info(character: CharacterBody2D) -> String:
 	if not character:
-		return "\n当前状态信息不可用。"
+		return "\nCurrent status information is unavailable."
 	
-	# 从角色节点获取数据
+	# Read data from the character node
 	var money = character.get_meta("money", 0)
-	var mood = character.get_meta("mood", "普通")
-	var health = character.get_meta("health", "良好")
+	var mood = character.get_meta("mood", "Normal")
+	var health = character.get_meta("health", "Good")
 	var relations = character.get_meta("relations", {})
 	
-	var status_info = "\n\n【当前个人状态】"
-	status_info += "\n💰 金钱：%d元" % money
-	status_info += "\n😊 心情：%s" % mood
-	status_info += "\n❤️ 健康：%s" % health
+	var status_info = "\n\n[Current personal status]"
+	status_info += "\n💰 Money: %d yuan" % money
+	status_info += "\n😊 Mood: %s" % mood
+	status_info += "\n❤️ Health: %s" % health
 	
-	# 使用MemoryManager获取格式化的记忆信息
-	status_info += "\n\n【记忆信息】"
+	# Use MemoryManager to get formatted memories
+	status_info += "\n\n[Memories]"
 	var memory_manager = MemoryManager.new()
 	var memory_text = memory_manager.get_formatted_memories_for_prompt(character)
-	# 移除开头的换行符，因为你们已经添加了标题
-	if memory_text.begins_with("\n\n记忆信息："):
-		memory_text = memory_text.substr(8)  # 移除"\n\n记忆信息："
+	# Strip the leading header, since a section title has already been added above
+	if memory_text.begins_with("\n\nMemories:"):
+		memory_text = memory_text.trim_prefix("\n\nMemories:")  # Must match the header produced by MemoryManager.get_formatted_memories_for_prompt()
 	status_info += memory_text
 	
-	status_info += "\n\n【情感关系】"
+	status_info += "\n\n[Relationships]"
 	if relations.size() > 0:
 		for person_name in relations:
 			var relation = relations[person_name]
-			var emotion_type = relation["type"] if relation.has("type") else "未知"
+			var emotion_type = relation["type"] if relation.has("type") else "Unknown"
 			var strength = relation["strength"] if relation.has("strength") else 0
-			status_info += "\n- 与%s：%s (强度：%d)" % [person_name, emotion_type, strength]
+			status_info += "\n- With %s: %s (strength: %d)" % [person_name, emotion_type, strength]
 	else:
-		status_info += "\n- 暂无特殊情感关系"
+		status_info += "\n- No special relationships yet"
 	
 	return status_info
 
-# 获取角色任务信息
+# Get character task info
 func get_character_tasks(character: CharacterBody2D) -> String:
 	var speaker_tasks = ""
 	var speaker_metadata = character.get_meta("character_data", {})
 	var tasks = speaker_metadata.get("tasks", [])
 	if tasks.size() > 0:
-		# 获取未完成的任务
+		# Get incomplete tasks
 		var active_tasks = []
 		for task in tasks:
 			if not task.get("completed", false):
 				active_tasks.append(task)
 		
 		if active_tasks.size() > 0:
-			# 按优先级排序，获取最重要的任务
+			# Sort by priority and get the most important task
 			active_tasks.sort_custom(func(a, b): return a.priority > b.priority)
 			var current_task = active_tasks[0]
-			speaker_tasks = "\n\n你当前最重要的任务是：%s（渴望程度：%d）" % [current_task.description, current_task.priority]
+			speaker_tasks = "\n\nYour current most important task is: %s (desire level: %d)" % [current_task.description, current_task.priority]
 			if active_tasks.size() > 1:
-				speaker_tasks += "\n你还有其他%d个待完成的任务。" % (active_tasks.size() - 1)
+				speaker_tasks += "\nYou have %d other pending tasks." % (active_tasks.size() - 1)
 	
 	return speaker_tasks

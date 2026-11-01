@@ -2,7 +2,7 @@ extends RefCounted
 
 class_name BackgroundStoryManager
 
-# 故事背景数据结构
+# Story background data structure
 class StoryBackground:
 	var map_name: String
 	var company_name: String
@@ -15,7 +15,7 @@ class StoryBackground:
 		background_description = description
 		preset_rules = rules
 
-# 社会规则数据结构
+# Social rule data structure
 class SocialRule:
 	var rule_text: String
 	var is_custom: bool
@@ -24,79 +24,79 @@ class SocialRule:
 		rule_text = text
 		is_custom = custom
 
-# 当前状态
+# Current state
 static var current_map_name: String = "Office"
 static var custom_rules: Array[String] = []
 
-# 预设的故事背景配置
+# Preset story background configs
 static var BACKGROUND_CONFIGS = {
 	"Office": {
-		"company_name": "CountSheep游戏公司",
-		"company_description": "一家专注于休闲小游戏开发的创新公司，主要产品是《CountSheep》小游戏。游戏宣传语：Can't Sleep? Count Sheep。游戏玩法：通过让用户数手机屏幕上跳过的小羊，然后有九宫格数字按钮来计数得分。该游戏目前十分流行，吸引了许多跟时髦的小青年充值购买小羊皮肤和按键皮肤。",
-		"environment_description": "这是一家现代化的公司，有多个工作区、会议室和休息区。办公室装修简洁明亮，有大窗户可以看到外面的景色。工作环境轻松愉快，鼓励创新和团队合作。",
-		"time_period": "现代（2024年）",
-		"cultural_context": "现代都市办公文化，注重工作与生活平衡，团队协作和创新思维。",
-		"economic_situation": "公司处于快速发展期，游戏收入稳定增长，员工待遇良好。",
+		"company_name": "CountSheep Game Company",
+		"company_description": "An innovative company focused on casual mini-games, whose main product is the mini-game \"CountSheep\". Game slogan: Can't Sleep? Count Sheep. Gameplay: users count the little sheep jumping across their phone screen, then tap a 3x3 grid of number buttons to enter the count and score points. The game is currently very popular, attracting lots of trendy young people who pay for sheep skins and button skins.",
+		"environment_description": "This is a modern company with several work areas, meeting rooms, and break areas. The office is bright and minimalist, with large windows overlooking the scenery outside. The work environment is relaxed and pleasant, encouraging innovation and teamwork.",
+		"time_period": "Modern day (2024)",
+		"cultural_context": "Modern urban office culture that values work-life balance, teamwork, and innovative thinking.",
+		"economic_situation": "The company is in a period of rapid growth, game revenue is growing steadily, and employees are well compensated.",
 		"social_rules": [
-			"工作时间内应保持专业态度",
-			"鼓励团队合作和知识分享",
-			"尊重同事的个人空间和工作习惯",
-			"会议室使用需要提前预约",
-			"保持工作区域整洁",
-			"午休时间可以适当放松",
-			"重要决策需要团队讨论"
+			"Maintain a professional attitude during working hours",
+			"Encourage teamwork and knowledge sharing",
+			"Respect colleagues' personal space and work habits",
+			"Meeting rooms must be booked in advance",
+			"Keep work areas tidy",
+			"It's fine to relax a bit during the lunch break",
+			"Important decisions require team discussion"
 		]
 	},
 	"School": {
-		"company_name": "阳光学院",
-		"company_description": "一所注重全面发展的现代化学校，致力于培养学生的学术能力和综合素质。学校设有完善的教学设施和丰富的课外活动。",
-		"environment_description": "校园环境优美，有教学楼、图书馆、实验室、体育馆等设施。绿树成荫，学习氛围浓厚。",
-		"time_period": "现代（2024年）",
-		"cultural_context": "教育文化环境，重视知识传授、品德培养和师生关系。",
-		"economic_situation": "学校资金充足，设施完善，教师待遇稳定。",
+		"company_name": "Sunshine Academy",
+		"company_description": "A modern school focused on well-rounded development, dedicated to building students' academic ability and overall character. The school has comprehensive teaching facilities and a rich range of extracurricular activities.",
+		"environment_description": "The campus is beautiful, with classroom buildings, a library, laboratories, a gymnasium, and other facilities. Tree-lined paths and a strong learning atmosphere.",
+		"time_period": "Modern day (2024)",
+		"cultural_context": "An educational environment that values passing on knowledge, building character, and teacher-student relationships.",
+		"economic_situation": "The school is well funded, has comprehensive facilities, and teachers are paid steadily.",
 		"social_rules": [
-			"上课时间保持安静，认真听讲",
-			"尊重老师和同学",
-			"按时完成作业和任务",
-			"保持校园环境整洁",
-			"遵守校规校纪",
-			"积极参与课堂讨论",
-			"课间时间可以适当休息和交流"
+			"Stay quiet and pay attention during class",
+			"Respect teachers and classmates",
+			"Finish homework and assignments on time",
+			"Keep the campus clean and tidy",
+			"Follow school rules and discipline",
+			"Participate actively in class discussions",
+			"It's fine to rest and chat a bit between classes"
 		]
 	},
 	"Jail": {
-		"company_name": "新希望监狱",
-		"company_description": "一所现代化的监狱，致力于罪犯改造和社会复归。采用人性化管理方式，注重教育和职业培训。",
-		"environment_description": "监狱设施完善，有牢房、食堂、图书馆、工作坊等区域。环境相对封闭但管理规范。",
-		"time_period": "现代（2024年）",
-		"cultural_context": "监狱改造文化，强调纪律、秩序和个人改造。",
-		"economic_situation": "监狱运营规范，有基本的生活保障和工作机会。",
+		"company_name": "New Hope Prison",
+		"company_description": "A modern prison dedicated to rehabilitating offenders and reintegrating them into society. It uses humane management and emphasizes education and vocational training.",
+		"environment_description": "The prison is well equipped, with cells, a cafeteria, a library, workshops, and other areas. The environment is relatively closed off but well managed.",
+		"time_period": "Modern day (2024)",
+		"cultural_context": "A prison rehabilitation culture that emphasizes discipline, order, and personal reform.",
+		"economic_situation": "The prison is run by the book, with basic living provisions and work opportunities.",
 		"social_rules": [
-			"严格遵守监狱作息时间",
-			"服从管理人员的指挥",
-			"不得发生冲突和暴力行为",
-			"积极参与改造活动",
-			"保持个人和环境卫生",
-			"尊重其他服刑人员",
-			"按时参加工作和学习"
+			"Strictly follow the prison schedule",
+			"Obey the instructions of the staff",
+			"No conflicts or violence",
+			"Participate actively in rehabilitation activities",
+			"Maintain personal and environmental hygiene",
+			"Respect other inmates",
+			"Attend work and study sessions on time"
 		]
 	}
 }
 
-# 当前激活的故事背景
+# Currently active story background
 static var current_background: StoryBackground
 
-# 用户自定义规则存储文件路径
+# File path for storing user-defined rules
 static var CUSTOM_RULES_FILE = "user://custom_social_rules.json"
 
-# 初始化背景故事管理器
+# Initialize the background story manager
 static func initialize(map_name: String = "Office"):
 	set_background(map_name)
 
-# 设置当前地图的故事背景
+# Set the story background for the current map
 static func set_background(map_name: String):
 	if not BACKGROUND_CONFIGS.has(map_name):
-		print("[BackgroundStoryManager] 警告：未找到地图 '%s' 的背景配置，使用默认Office配置" % map_name)
+		print("[BackgroundStoryManager] Warning: no background config found for map '%s', using the default Office config" % map_name)
 		map_name = "Office"
 	
 	var config = BACKGROUND_CONFIGS[map_name]
@@ -107,58 +107,58 @@ static func set_background(map_name: String):
 	current_background = StoryBackground.new(
 		map_name,
 		config["company_name"],
-		config["company_description"] + "\n" + config["environment_description"] + "\n时代背景：" + config["time_period"] + "\n文化背景：" + config["cultural_context"] + "\n经济状况：" + config["economic_situation"],
+		config["company_description"] + "\n" + config["environment_description"] + "\nTime period: " + config["time_period"] + "\nCultural context: " + config["cultural_context"] + "\nEconomic situation: " + config["economic_situation"],
 		social_rules_array
 	)
 	
 	current_map_name = map_name
 	
-	# 加载用户自定义规则
+	# Load user-defined rules
 	load_custom_rules()
 	
-	print("[BackgroundStoryManager] 已设置故事背景：%s" % map_name)
+	print("[BackgroundStoryManager] Story background set: %s" % map_name)
 
-# 获取当前故事背景信息（用于prompt）
+# Get the current story background info (for prompts)
 static func get_background_info_for_prompt() -> String:
 	if not current_background:
 		initialize()
 	
 	var info = ""
-	info += "\n\n=== 故事背景信息 ==="
-	info += "\n机构名称：" + current_background.company_name
+	info += "\n\n=== Story Background ==="
+	info += "\nOrganization name: " + current_background.company_name
 	info += "\n" + current_background.background_description
 	
-	info += "\n\n=== 社会规则 ==="
-	info += "\n以下是你必须遵守的社会规则和行为准则："
+	info += "\n\n=== Social Rules ==="
+	info += "\nThese are the social rules and code of conduct you must follow:"
 	
-	# 添加预设规则
+	# Add preset rules
 	for i in range(current_background.preset_rules.size()):
 		info += "\n%d. %s" % [i + 1, current_background.preset_rules[i]]
 	
-	# 添加用户自定义规则
+	# Add user-defined rules
 	if custom_rules.size() > 0:
-		info += "\n\n=== 额外社会规则 ==="
-		info += "\n以下是额外的重要规则："
+		info += "\n\n=== Additional Social Rules ==="
+		info += "\nThese are additional important rules:"
 		for i in range(custom_rules.size()):
 			info += "\n%d. %s" % [i + 1, custom_rules[i]]
 	
-	info += "\n\n注意：你的所有行为和决策都应该符合以上背景设定和社会规则。"
+	info += "\n\nNote: all of your behavior and decisions should be consistent with the background and social rules above."
 	
 	return info
 
 
 
-# 添加用户自定义规则
+# Add a user-defined rule
 static func add_custom_rule(rule: String):
 	if rule.strip_edges().is_empty():
 		return false
 	
 	custom_rules.append(rule.strip_edges())
 	save_custom_rules()
-	print("[BackgroundStoryManager] 已添加自定义规则：%s" % rule)
+	print("[BackgroundStoryManager] Added custom rule: %s" % rule)
 	return true
 
-# 移除用户自定义规则
+# Remove a user-defined rule
 static func remove_custom_rule(index: int):
 	if index < 0 or index >= custom_rules.size():
 		return false
@@ -166,20 +166,20 @@ static func remove_custom_rule(index: int):
 	var removed_rule = custom_rules[index]
 	custom_rules.remove_at(index)
 	save_custom_rules()
-	print("[BackgroundStoryManager] 已移除自定义规则：%s" % removed_rule)
+	print("[BackgroundStoryManager] Removed custom rule: %s" % removed_rule)
 	return true
 
-# 获取所有自定义规则
+# Get all custom rules
 static func get_custom_rules() -> Array[String]:
 	return custom_rules
 
-# 清空所有自定义规则
+# Clear all custom rules
 static func clear_custom_rules():
 	custom_rules.clear()
 	save_custom_rules()
-	print("[BackgroundStoryManager] 已清空所有自定义规则")
+	print("[BackgroundStoryManager] Cleared all custom rules")
 
-# 保存用户自定义规则到文件
+# Save user-defined rules to file
 static func save_custom_rules():
 	var save_data = {
 		"map_name": current_map_name,
@@ -190,11 +190,11 @@ static func save_custom_rules():
 	if file:
 		file.store_string(JSON.stringify(save_data))
 		file.close()
-		print("[BackgroundStoryManager] 自定义规则已保存")
+		print("[BackgroundStoryManager] Custom rules saved")
 	else:
-		print("[BackgroundStoryManager] 保存自定义规则失败")
+		print("[BackgroundStoryManager] Failed to save custom rules")
 
-# 从文件加载用户自定义规则
+# Load user-defined rules from file
 static func load_custom_rules():
 	if not FileAccess.file_exists(CUSTOM_RULES_FILE):
 		return
@@ -210,72 +210,72 @@ static func load_custom_rules():
 	var parse_result = json.parse(json_string)
 	
 	if parse_result != OK:
-		print("[BackgroundStoryManager] 解析自定义规则文件失败")
+		print("[BackgroundStoryManager] Failed to parse custom rules file")
 		return
 	
 	var save_data = json.data
 	if save_data.has("map_name") and save_data["map_name"] == current_map_name:
 		if save_data.has("custom_rules"):
 			custom_rules = save_data["custom_rules"]
-			print("[BackgroundStoryManager] 已加载 %d 条自定义规则" % custom_rules.size())
+			print("[BackgroundStoryManager] Loaded %d custom rules" % custom_rules.size())
 
-# 获取可用的地图列表
+# Get the list of available maps
 static func get_available_maps() -> Array[String]:
 	var maps: Array[String] = []
 	for key in BACKGROUND_CONFIGS.keys():
 		maps.append(key)
 	return maps
 
-# 获取当前地图名称
+# Get the current map name
 static func get_current_map_name() -> String:
 	return current_map_name
 
-# 获取当前公司名称
+# Get the current company name
 static func get_current_company_name() -> String:
 	if current_background:
 		return current_background.company_name
-	return "未知机构"
+	return "Unknown organization"
 
-# 获取当前背景描述
+# Get the current background description
 static func get_current_background_description() -> String:
 	if current_background:
 		return current_background.background_description
-	return "无背景描述"
+	return "No background description"
 
-# 获取预设规则
+# Get preset rules
 static func get_preset_rules() -> Array[String]:
 	if current_background:
 		return current_background.preset_rules
 	return []
 
-# 获取所有规则（预设+自定义）
+# Get all rules (preset + custom)
 static func get_all_rules() -> Array[String]:
 	var all_rules: Array[String] = []
 	all_rules.append_array(get_preset_rules())
 	all_rules.append_array(custom_rules)
 	return all_rules
 
-# 生成完整的背景和规则prompt
+# Generate the full background and rules prompt
 static func generate_background_prompt() -> String:
 	var prompt = ""
 	
-	# 添加背景描述
+	# Add the background description
 	var background_desc = get_current_background_description()
 	if not background_desc.is_empty():
-		prompt += "## 故事背景\n"
+		prompt += "## Story Background\n"
 		prompt += background_desc + "\n\n"
 	
-	# 添加社会规则
+	# Add social rules
 	var all_rules = get_all_rules()
 	if all_rules.size() > 0:
-		prompt += "## 社会规则\n"
+		prompt += "## Social Rules\n"
 		for i in range(all_rules.size()):
 			prompt += "%d. %s\n" % [i + 1, all_rules[i]]
 		prompt += "\n"
 	
 	return prompt
 
-# 生成简化的背景信息（用于UI显示）
+# Generate simplified background info (for UI display)
 static func get_background_summary() -> Dictionary:
 	return {
 		"map_name": current_map_name,
@@ -285,6 +285,6 @@ static func get_background_summary() -> Dictionary:
 		"total_rules_count": get_all_rules().size()
 	}
 
-# 检查地图是否存在
+# Check whether a map exists
 static func is_map_available(map_name: String) -> bool:
 	return BACKGROUND_CONFIGS.has(map_name)

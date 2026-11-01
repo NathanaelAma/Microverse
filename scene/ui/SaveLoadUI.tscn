@@ -49,7 +49,7 @@ grow_vertical = 2
 
 [node name="TitleLabel" type="Label" parent="Panel/VBoxContainer"]
 layout_mode = 2
-text = "游戏存档"
+text = "Game Saves"
 horizontal_alignment = 1
 
 [node name="HSeparator" type="HSeparator" parent="Panel/VBoxContainer"]
@@ -64,12 +64,12 @@ layout_mode = 2
 
 [node name="Label" type="Label" parent="Panel/VBoxContainer/SaveNameContainer"]
 layout_mode = 2
-text = "存档名称:"
+text = "Save name:"
 
 [node name="SaveNameInput" type="LineEdit" parent="Panel/VBoxContainer/SaveNameContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-placeholder_text = "输入存档名称"
+placeholder_text = "Enter a save name"
 
 [node name="ButtonContainer" type="HBoxContainer" parent="Panel/VBoxContainer"]
 layout_mode = 2
@@ -77,19 +77,19 @@ alignment = 1
 
 [node name="SaveButton" type="Button" parent="Panel/VBoxContainer/ButtonContainer"]
 layout_mode = 2
-text = "保存游戏"
+text = "Save Game"
 
 [node name="LoadButton" type="Button" parent="Panel/VBoxContainer/ButtonContainer"]
 layout_mode = 2
-text = "加载游戏"
+text = "Load Game"
 
 [node name="DeleteButton" type="Button" parent="Panel/VBoxContainer/ButtonContainer"]
 layout_mode = 2
-text = "删除存档"
+text = "Delete Save"
 
 [node name="CloseButton" type="Button" parent="Panel/VBoxContainer/ButtonContainer"]
 layout_mode = 2
-text = "关闭"
+text = "Close"
 
 [node name="StatusLabel" type="Label" parent="Panel/VBoxContainer"]
 layout_mode = 2

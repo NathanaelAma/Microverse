@@ -1,9 +1,9 @@
-# APIConfig.gd - API配置管理器
-# 统一管理所有API相关的配置信息，避免硬编码和重复代码
+# APIConfig.gd - API configuration manager
+# Centrally manages all API-related configuration to avoid hardcoding and duplicated code
 
 class_name APIConfig
 
-# API类型枚举
+# API type enum
 enum APIType {
 	OLLAMA,
 	OPENAI,
@@ -13,10 +13,10 @@ enum APIType {
 	CLAUDE,
 	SILICONFLOW,
 	KIMI,
-	OPENAI_COMPATIBLE  # 新增：OpenAI兼容API枚举
+	OPENAI_COMPATIBLE  # New: OpenAI-compatible API enum value
 }
 
-# API配置数据结构
+# API configuration data structure
 class APIProvider:
 	var name: String
 	var display_name: String
@@ -25,7 +25,7 @@ class APIProvider:
 	var requires_api_key: bool
 	var headers_template: Dictionary
 	var request_format: String  # "ollama", "openai", "gemini", "claude"
-	var response_parser: String  # 响应解析器类型
+	var response_parser: String  # Response parser type
 	
 	func _init(n: String, dn: String, u: String, m: Array[String], req_key: bool, headers: Dictionary, req_fmt: String, resp_parser: String):
 		name = n
@@ -37,19 +37,19 @@ class APIProvider:
 		request_format = req_fmt
 		response_parser = resp_parser
 
-# 静态配置数据
+# Static configuration data
 static var _providers: Dictionary = {}
 static var _initialized: bool = false
 
-# 初始化API提供商配置
+# Initialize API provider configs
 static func _initialize():
 	if _initialized:
 		return
 	
-	# Ollama配置
+	# Ollama config
 	_providers["Ollama"] = APIProvider.new(
 		"Ollama",
-		"Ollama (本地)",
+		"Ollama (Local)",
 		"http://localhost:11434/api/generate",
 		["qwen2.5:1.5b", "llama3.2:1b", "llama3.2:3b", "gemma2:2b"],
 		false,
@@ -58,7 +58,7 @@ static func _initialize():
 		"ollama"
 	)
 	
-	# OpenAI配置
+	# OpenAI config
 	_providers["OpenAI"] = APIProvider.new(
 		"OpenAI",
 		"OpenAI",
@@ -70,7 +70,7 @@ static func _initialize():
 		"openai"
 	)
 	
-	# DeepSeek配置
+	# DeepSeek config
 	_providers["DeepSeek"] = APIProvider.new(
 		"DeepSeek",
 		"DeepSeek",
@@ -82,10 +82,10 @@ static func _initialize():
 		"openai"
 	)
 	
-	# 豆包配置
+	# Doubao config
 	_providers["Doubao"] = APIProvider.new(
 		"Doubao",
-		"豆包 (字节跳动)",
+		"Doubao (ByteDance)",
 		"https://ark.cn-beijing.volces.com/api/v3/chat/completions",
 		["doubao-lite-4k", "doubao-lite-32k", "doubao-lite-128k", "doubao-pro-4k", "doubao-pro-32k", "doubao-pro-128k"],
 		true,
@@ -94,7 +94,7 @@ static func _initialize():
 		"openai"
 	)
 	
-	# Gemini配置
+	# Gemini config
 	_providers["Gemini"] = APIProvider.new(
 		"Gemini",
 		"Gemini (Google)",
@@ -106,23 +106,23 @@ static func _initialize():
 		"gemini"
 	)
 	
-	# Claude配置
+	# Claude config
 	_providers["Claude"] = APIProvider.new(
 		"Claude",
 		"Claude (Anthropic)",
 		"https://api.anthropic.com/v1/messages",
 		["claude-opus-5-5", "claude-sonnet-5-5", "claude-haiku-5-5"],
 		true,
-		# Anthropic API 使用 x-api-key 认证（不是 Authorization: Bearer）
+		# The Anthropic API authenticates with x-api-key (not Authorization: Bearer)
 		{"Content-Type": "application/json", "x-api-key": "{api_key}", "anthropic-version": "2026-10-21"},
 		"claude",
 		"claude"
 	)
 	
-	# KIMI配置
+	# KIMI config
 	_providers["KIMI"] = APIProvider.new(
 		"KIMI",
-		"KIMI (月之暗面)",
+		"KIMI (Moonshot AI)",
 		"https://api.moonshot.cn/v1/chat/completions",
 		["moonshot-v1-8k", "moonshot-v1-32k", "moonshot-v1-128k"],
 		true,
@@ -132,10 +132,10 @@ static func _initialize():
 	)
 
 
-	# 硅基流动配置
+	# SiliconFlow config
 	_providers["SiliconFlow"] = APIProvider.new(
 		"SiliconFlow",
-		"硅基流动",
+		"SiliconFlow",
 		"https://api.siliconflow.cn/v1/chat/completions",
 		["deepseek-ai/DeepSeek-V3.1-Terminus", "inclusionAI/Ring-1T", "zai-org/GLM-4.6"],
 		true,
@@ -144,13 +144,13 @@ static func _initialize():
 		"openai"
 	)
 	
-# 新增：OpenAI Compatible通用提供商
-	# URL 这里用占位符，在运行时替换或通过配置文件设置
+# New: generic OpenAI Compatible provider
+	# The URL here is a placeholder, replaced at runtime or set via a config file
 	_providers["OpenAICompatible"] = APIProvider.new(
 		"OpenAICompatible",
-		"OpenAI Compatible (自定义)",
-		"https://custom-openai-compatible.com/v1/chat/completions",  # 占位符URL，实际使用时可扩展动态设置
-		[],  # 模型列表为空，由用户指定或动态加载
+		"OpenAI Compatible (Custom)",
+		"https://custom-openai-compatible.com/v1/chat/completions",  # Placeholder URL; can be extended to support dynamic configuration
+		[],  # Empty model list; specified by the user or loaded dynamically
 		true,
 		{"Content-Type": "application/json", "Authorization": "Bearer {api_key}"},
 		"openai",
@@ -159,7 +159,7 @@ static func _initialize():
 	
 	_initialized = true
 
-# 获取所有API提供商名称（自动包含新增）
+# Get all API provider names (automatically includes new ones)
 static func get_api_types() -> Array[String]:
 	_initialize()
 	var result: Array[String] = []
@@ -167,24 +167,24 @@ static func get_api_types() -> Array[String]:
 		result.append(key)
 	return result
 
-# 获取API提供商配置
+# Get an API provider's config
 static func get_provider(api_type: String) -> APIProvider:
 	_initialize()
 	return _providers.get(api_type, _providers["Ollama"])
 
-# 获取指定API的模型列表
+# Get the model list for the given API
 static func get_models_for_api(api_type: String) -> Array[String]:
 	_initialize()
 	var provider = get_provider(api_type)
 	return provider.models
 
-# 检查API是否需要密钥
+# Check whether the API requires a key
 static func requires_api_key(api_type: String) -> bool:
 	_initialize()
 	var provider = get_provider(api_type)
 	return provider.requires_api_key
 
-# 构建请求数据
+# Build the request data
 static func build_request_data(api_type: String, model: String, prompt: String) -> Dictionary:
 	_initialize()
 	var provider = get_provider(api_type)
@@ -213,8 +213,8 @@ static func build_request_data(api_type: String, model: String, prompt: String) 
 				}]
 			}
 		"claude":
-			# 当前Claude模型始终开启思考，思考token计入max_tokens，
-			# 因此留出余量；短对话场景使用low effort以降低延迟和成本
+			# Current Claude models always have thinking enabled, and thinking tokens count toward max_tokens,
+			# so leave headroom; use low effort for short dialog to reduce latency and cost
 			return {
 				"model": model,
 				"max_tokens": 4096,
@@ -227,7 +227,7 @@ static func build_request_data(api_type: String, model: String, prompt: String) 
 		_:
 			return {}
 
-# 构建请求头
+# Build the request headers
 static func build_headers(api_type: String, api_key: String) -> Array[String]:
 	_initialize()
 	var provider = get_provider(api_type)
@@ -241,7 +241,7 @@ static func build_headers(api_type: String, api_key: String) -> Array[String]:
 	
 	return headers
 
-# 获取请求URL（新增对兼容模式的处理，如果需要动态URL，可在这里扩展）
+# Get the request URL (adds handling for compatible mode; extend here if a dynamic URL is needed)
 static func get_url(api_type: String, model: String = "") -> String:
 	_initialize()
 	var provider = get_provider(api_type)
@@ -250,13 +250,13 @@ static func get_url(api_type: String, model: String = "") -> String:
 	if url.find("{model}") != -1:
 		url = url.replace("{model}", model)
 	
-	# 新增：如果api_type是OpenAICompatible，可以添加自定义逻辑（如从全局配置读取URL）
+	# New: if api_type is OpenAICompatible, custom logic can be added here (e.g. read the URL from a global config)
 	# if api_type == "OpenAICompatible":
-	#     url = GlobalConfig.custom_openai_url  # 示例扩展，需项目支持
+	#     url = GlobalConfig.custom_openai_url  # Example extension, requires project support
 	 
 	return url
 
-# 解析API响应
+# Parse the API response
 static func parse_response(api_type: String, response: Dictionary, character_name: String = "") -> String:
 	_initialize()
 	var provider = get_provider(api_type)
@@ -264,44 +264,44 @@ static func parse_response(api_type: String, response: Dictionary, character_nam
 	match provider.response_parser:
 		"ollama":
 			if not "response" in response:
-				print("[APIConfig] %s 的Ollama API响应格式错误：缺少response字段" % character_name)
+				print("[APIConfig] Ollama API response for %s is malformed: missing response field" % character_name)
 				return ""
 			return response.response
 		
 		"openai":
 			if not "choices" in response or not response.has("choices") or response.choices.size() == 0:
-				print("[APIConfig] %s 的OpenAI格式API响应错误：缺少choices字段或为空" % character_name)
+				print("[APIConfig] OpenAI-format API response for %s is malformed: choices field missing or empty" % character_name)
 				return ""
 			if not response.choices[0].has("message") or not response.choices[0].message.has("content"):
-				print("[APIConfig] %s 的OpenAI格式API响应错误：缺少message或content字段" % character_name)
+				print("[APIConfig] OpenAI-format API response for %s is malformed: missing message or content field" % character_name)
 				return ""
 			return response.choices[0].message.content
 		
 		"gemini":
 			if not "candidates" in response or response.candidates.size() == 0:
-				print("[APIConfig] %s 的Gemini API响应格式错误：缺少candidates字段或为空" % character_name)
+				print("[APIConfig] Gemini API response for %s is malformed: candidates field missing or empty" % character_name)
 				return ""
 			if not response.candidates[0].has("content") or not response.candidates[0].content.has("parts") or response.candidates[0].content.parts.size() == 0:
-				print("[APIConfig] %s 的Gemini API响应格式错误：缺少content或parts字段" % character_name)
+				print("[APIConfig] Gemini API response for %s is malformed: missing content or parts field" % character_name)
 				return ""
 			return response.candidates[0].content.parts[0].text
 		
 		"claude":
 			if response.get("stop_reason", "") == "refusal":
-				print("[APIConfig] %s 的Claude请求被拒绝（refusal）" % character_name)
+				print("[APIConfig] Claude request for %s was refused (refusal)" % character_name)
 				return ""
 			if not "content" in response or not response.content is Array or response.content.size() == 0:
-				print("[APIConfig] %s 的Claude API响应格式错误：缺少content字段或为空" % character_name)
+				print("[APIConfig] Claude API response for %s is malformed: content field missing or empty" % character_name)
 				return ""
-			# content中可能先出现thinking块，只拼接type为text的块
+			# content may start with thinking blocks; only concatenate blocks whose type is text
 			var text := ""
 			for block in response.content:
 				if block is Dictionary and block.get("type", "") == "text":
 					text += str(block.get("text", ""))
 			if text == "":
-				print("[APIConfig] %s 的Claude API响应格式错误：没有text内容块" % character_name)
+				print("[APIConfig] Claude API response for %s is malformed: no text content blocks" % character_name)
 			return text
 		
 		_:
-			print("[APIConfig] %s 未知的API类型，使用默认处理" % character_name)
+			print("[APIConfig] Unknown API type for %s, using default handling" % character_name)
 			return ""

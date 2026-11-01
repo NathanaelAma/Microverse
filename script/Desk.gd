@@ -1,43 +1,43 @@
 extends StaticBody2D
 
-@export var base_z_index: int = 0  # 基础Z轴顺序
-@export var y_threshold: float = 32.0  # Y轴判定阈值，用于确定前后关系
+@export var base_z_index: int = 0  # Base Z order
+@export var y_threshold: float = 32.0  # Y-axis threshold used to determine front/back ordering
 
 func _ready():
-	# 设置初始Z轴顺序
+	# Set the initial Z order
 	z_index = base_z_index + 1
 	
-	# 添加定时器来定期更新Z轴顺序
+	# Add a timer to update the Z order periodically
 	var timer = Timer.new()
 	add_child(timer)
-	timer.wait_time = 0.1  # 每0.1秒更新一次
+	timer.wait_time = 0.1  # Update every 0.1 seconds
 	timer.timeout.connect(_update_z_order)
 	timer.start()
 
 func _update_z_order():
-	# 获取所有角色和椅子
+	# Get all characters and chairs
 	var characters = get_tree().get_nodes_in_group("controllable_characters")
-	var chairs = get_tree().get_nodes_in_group("chairs")  # 需要将椅子加入chairs组
+	var chairs = get_tree().get_nodes_in_group("chairs")  # Chairs must be added to the chairs group
 	
-	# 获取桌子的Y坐标
+	# Get the desk's Y coordinate
 	var desk_y = global_position.y
 	
-	# 检查与角色的关系
+	# Check the relationship with characters
 	for character in characters:
 		if abs(character.global_position.y - desk_y) <= y_threshold:
 			if character.global_position.y < desk_y:
-				# 角色在桌子后面
+				# Character is behind the desk
 				z_index = character.z_index + 1
 			else:
-				# 角色在桌子前面
+				# Character is in front of the desk
 				z_index = character.z_index - 1
 	
-	# 检查与椅子的关系
+	# Check the relationship with chairs
 	for chair in chairs:
 		if abs(chair.global_position.y - desk_y) <= y_threshold:
 			if chair.global_position.y < desk_y:
-				# 椅子在桌子后面
+				# Chair is behind the desk
 				z_index = max(z_index, chair.z_index + 1)
 			else:
-				# 椅子在桌子前面
+				# Chair is in front of the desk
 				z_index = min(z_index, chair.z_index - 1)
