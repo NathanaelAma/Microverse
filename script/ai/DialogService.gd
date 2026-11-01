@@ -1,64 +1,64 @@
 extends Node
 class_name DialogService
 
-# 活跃的对话管理器字典
+# Dictionary of active conversation managers
 var active_conversations: Dictionary = {}
 
-# 对话范围设置
+# Dialog range settings
 var max_dialog_distance: float = 100.0
 
-# 信号
+# Signals
 signal conversation_started(conversation_id: String, speaker_name: String, listener_name: String)
 signal conversation_ended(conversation_id: String)
 signal dialog_generated(conversation_id: String, speaker_name: String, dialog_text: String)
 
 func _ready():
-	print("[DialogService] 对话服务已初始化")
+	print("[DialogService] Dialog service initialized")
 
-# 尝试开始对话
+# Try to start a conversation
 func try_start_conversation(speaker: CharacterBody2D, listener: CharacterBody2D) -> bool:
 	if not speaker or not listener:
-		print("[DialogService] 无效的对话参与者")
+		print("[DialogService] Invalid conversation participants")
 		return false
 	
-	# 检查距离
+	# Check distance
 	if not _is_in_range(speaker, listener):
-		print("[DialogService] 角色距离过远，无法开始对话")
+		print("[DialogService] Characters are too far apart to start a conversation")
 		return false
 	
-	# 检查是否已经在对话中
+	# Check whether either is already in a conversation
 	if is_character_in_conversation(speaker) or is_character_in_conversation(listener):
-		print("[DialogService] 其中一个角色已经在对话中")
+		print("[DialogService] One of the characters is already in a conversation")
 		return false
 	
-	# 创建新的对话管理器
+	# Create a new conversation manager
 	var conversation = ConversationManager.new(speaker, listener)
 	active_conversations[conversation.conversation_id] = conversation
 	
-	# 连接信号
+	# Connect signals
 	conversation.conversation_ended.connect(_on_conversation_ended)
 	conversation.dialog_generated.connect(_on_dialog_generated)
 	
-	# 开始对话
+	# Start the conversation
 	conversation.start_conversation()
 	
-	# 发出信号
+	# Emit signal
 	conversation_started.emit(conversation.conversation_id, speaker.name, listener.name)
 	
-	print("[DialogService] 开始新对话：%s <-> %s (ID: %s)" % [speaker.name, listener.name, conversation.conversation_id])
+	print("[DialogService] Started new conversation: %s <-> %s (ID: %s)" % [speaker.name, listener.name, conversation.conversation_id])
 	return true
 
-# 结束指定对话
+# End the specified conversation
 func end_conversation(conversation_id: String) -> bool:
 	if not active_conversations.has(conversation_id):
-		print("[DialogService] 对话不存在：%s" % conversation_id)
+		print("[DialogService] Conversation does not exist: %s" % conversation_id)
 		return false
 	
 	var conversation = active_conversations[conversation_id]
 	conversation.end_conversation()
 	return true
 
-# 结束角色参与的所有对话
+# End all conversations a character is in
 func end_character_conversations(character: CharacterBody2D):
 	var conversations_to_end = []
 	
@@ -70,7 +70,7 @@ func end_character_conversations(character: CharacterBody2D):
 	for conversation_id in conversations_to_end:
 		end_conversation(conversation_id)
 
-# 检查角色是否在对话中
+# Check whether a character is in a conversation
 func is_character_in_conversation(character: CharacterBody2D) -> bool:
 	for conversation_id in active_conversations:
 		var conversation = active_conversations[conversation_id]
@@ -78,7 +78,7 @@ func is_character_in_conversation(character: CharacterBody2D) -> bool:
 			return true
 	return false
 
-# 获取角色参与的对话ID列表
+# Get the list of conversation IDs a character is in
 func get_character_conversations(character: CharacterBody2D) -> Array:
 	var conversation_ids = []
 	
@@ -89,11 +89,11 @@ func get_character_conversations(character: CharacterBody2D) -> Array:
 	
 	return conversation_ids
 
-# 获取活跃对话数量
+# Get the number of active conversations
 func get_active_conversation_count() -> int:
 	return active_conversations.size()
 
-# 获取所有活跃对话信息
+# Get info for all active conversations
 func get_active_conversations_info() -> Array:
 	var info = []
 	
@@ -108,22 +108,22 @@ func get_active_conversations_info() -> Array:
 	
 	return info
 
-# 检查是否在对话范围内
+# Check whether within dialog range
 func _is_in_range(node1: Node2D, node2: Node2D) -> bool:
 	return node1.global_position.distance_to(node2.global_position) <= max_dialog_distance
 
-# 对话结束回调
+# Conversation ended callback
 func _on_conversation_ended(conversation_id: String):
-	print("[DialogService] 对话结束：%s" % conversation_id)
+	print("[DialogService] Conversation ended: %s" % conversation_id)
 	
 	if active_conversations.has(conversation_id):
 		active_conversations.erase(conversation_id)
 	
 	conversation_ended.emit(conversation_id)
 
-# 对话生成回调
+# Dialog generated callback
 func _on_dialog_generated(speaker_name: String, dialog_text: String):
-	# 找到对应的对话ID
+	# Find the matching conversation ID
 	var conversation_id = ""
 	for id in active_conversations:
 		var conversation = active_conversations[id]
@@ -133,9 +133,9 @@ func _on_dialog_generated(speaker_name: String, dialog_text: String):
 	
 	dialog_generated.emit(conversation_id, speaker_name, dialog_text)
 
-# 清理所有对话
+# Clean up all conversations
 func cleanup_all_conversations():
-	print("[DialogService] 清理所有对话")
+	print("[DialogService] Cleaning up all conversations")
 	
 	for conversation_id in active_conversations:
 		var conversation = active_conversations[conversation_id]
@@ -143,9 +143,9 @@ func cleanup_all_conversations():
 	
 	active_conversations.clear()
 
-# 调试信息
+# Debug info
 func print_debug_info():
-	print("[DialogService] 当前活跃对话数：%d" % active_conversations.size())
+	print("[DialogService] Active conversations: %d" % active_conversations.size())
 	for conversation_id in active_conversations:
 		var conversation = active_conversations[conversation_id]
-		print("  - %s: %s <-> %s (活跃: %s)" % [conversation_id, conversation.speaker.name, conversation.listener.name, conversation.is_active])
+		print("  - %s: %s <-> %s (active: %s)" % [conversation_id, conversation.speaker.name, conversation.listener.name, conversation.is_active])

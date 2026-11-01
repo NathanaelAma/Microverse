@@ -1,16 +1,16 @@
 extends Control
 
 func _ready():
-	# 连接地图选择按钮信号
+	# Connect map selection button signals
 	$MarginContainer/ScrollContainer/GridContainer/PanelContainer/VBoxContainer/OfficeButton.pressed.connect(_on_office_selected)
 	$BackButton.pressed.connect(_on_back_pressed)
 
 func _on_office_selected():
-	# 设置办公室故事背景
+	# Set the office story background
 	BackgroundStoryManager.set_background("Office")
-	# 加载办公室场景
+	# Load the office scene
 	SceneRoutes.change_to(get_tree(), SceneRoutes.OFFICE)
 
 func _on_back_pressed():
-	# 返回主菜单
+	# Return to the main menu
 	SceneRoutes.change_to(get_tree(), SceneRoutes.MAIN_MENU)

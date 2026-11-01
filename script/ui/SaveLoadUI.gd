@@ -1,9 +1,9 @@
-# SaveLoadUI.gd - 存档加载界面
-# 提供游戏存档、读档和删除存档的功能
+# SaveLoadUI.gd - save/load UI
+# Provides saving, loading, and deleting game saves
 
 extends Control
 
-# 节点引用
+# Node references
 @onready var save_list = $Panel/VBoxContainer/SaveList
 @onready var save_name_input = $Panel/VBoxContainer/SaveNameContainer/SaveNameInput
 @onready var save_button = $Panel/VBoxContainer/ButtonContainer/SaveButton
@@ -12,17 +12,17 @@ extends Control
 @onready var close_button = $Panel/VBoxContainer/ButtonContainer/CloseButton
 @onready var status_label = $Panel/VBoxContainer/StatusLabel
 
-# 游戏存档管理器
+# Game save manager
 var save_manager
 
-# 当前选中的存档
+# Currently selected save
 var selected_save = ""
 
 func _ready():
-	# 获取存档管理器
+	# Get the save manager
 	save_manager = get_node_or_null("/root/GameSaveManager")
 	
-	# 连接信号
+	# Connect signals
 	save_button.pressed.connect(_on_save_pressed)
 	load_button.pressed.connect(_on_load_pressed)
 	delete_button.pressed.connect(_on_delete_pressed)
@@ -30,40 +30,40 @@ func _ready():
 	save_manager.save_completed.connect(_on_save_completed)
 	save_manager.load_completed.connect(_on_load_completed)
 	
-	# 初始状态
+	# Initial state
 	load_button.disabled = true
 	delete_button.disabled = true
 	status_label.text = ""
 	
-	# 加载存档列表
+	# Load the save list
 	refresh_save_list()
 	
-	# 默认隐藏
+	# Hidden by default
 	hide()
 
-# 显示界面
+# Show the UI
 func show_ui():
 	show()
 	refresh_save_list()
 
-# 隐藏界面
+# Hide the UI
 func hide_ui():
 	hide()
 
-# 刷新存档列表
+# Refresh the save list
 func refresh_save_list():
-	# 清空列表
+	# Clear the list
 	save_list.clear()
 	
-	# 获取所有存档
+	# Get all saves
 	var saves = save_manager.get_save_files()
 	
-	# 添加到列表
+	# Add to the list
 	for save_name in saves:
 		var save_info = save_manager.get_save_info(save_name)
 		var display_text = save_name
 		
-		# 如果有时间戳，添加日期信息
+		# If there's a timestamp, add the date
 		if save_info.has("timestamp") and save_info["timestamp"] > 0:
 			var datetime = Time.get_datetime_dict_from_unix_time(save_info["timestamp"])
 			display_text += " (%04d-%02d-%02d %02d:%02d)" % [
@@ -74,73 +74,73 @@ func refresh_save_list():
 				datetime["minute"]
 			]
 		
-		# 添加场景和角色数量信息
+		# Add scene and character count info
 		if save_info.has("scene_name"):
 			display_text += " - " + save_info["scene_name"]
 		
 		if save_info.has("character_count"):
-			display_text += " (" + str(save_info["character_count"]) + "个角色)"
+			display_text += " (" + str(save_info["character_count"]) + " characters)"
 		
 		save_list.add_item(display_text, null, true)
 		save_list.set_item_metadata(save_list.get_item_count() - 1, save_name)
 	
-	# 连接选择信号
+	# Connect the selection signal
 	if not save_list.item_selected.is_connected(_on_save_selected):
 		save_list.item_selected.connect(_on_save_selected)
 
-# 保存按钮回调
+# Save button callback
 func _on_save_pressed():
 	var save_name = save_name_input.text.strip_edges()
 	
-	# 检查是否输入了存档名
+	# Check whether a save name was entered
 	if save_name.is_empty():
-		status_label.text = "请输入存档名称"
+		status_label.text = "Please enter a save name"
 		return
 	
-	# 保存游戏
+	# Save the game
 	save_manager.save_game(save_name)
 
-# 加载按钮回调
+# Load button callback
 func _on_load_pressed():
 	if selected_save.is_empty():
-		status_label.text = "请先选择一个存档"
+		status_label.text = "Please select a save first"
 		return
 	
-	# 加载游戏
+	# Load the game
 	save_manager.load_game(selected_save)
 
-# 删除按钮回调
+# Delete button callback
 func _on_delete_pressed():
 	if selected_save.is_empty():
-		status_label.text = "请先选择一个存档"
+		status_label.text = "Please select a save first"
 		return
 	
-	# 删除存档
+	# Delete the save
 	if save_manager.delete_save(selected_save):
 		refresh_save_list()
 		selected_save = ""
 		load_button.disabled = true
 		delete_button.disabled = true
-		status_label.text = "存档已删除"
+		status_label.text = "Save deleted"
 
-# 关闭按钮回调
+# Close button callback
 func _on_close_pressed():
 	hide_ui()
 
-# 存档选择回调
+# Save selected callback
 func _on_save_selected(index):
 	selected_save = save_list.get_item_metadata(index)
 	load_button.disabled = false
 	delete_button.disabled = false
 	save_name_input.text = selected_save
 
-# 保存完成回调
+# Save completed callback
 func _on_save_completed(success: bool, message: String):
 	status_label.text = message
 	if success:
 		refresh_save_list()
 
-# 加载完成回调
+# Load completed callback
 func _on_load_completed(success: bool, message: String):
 	status_label.text = message
 	if success:

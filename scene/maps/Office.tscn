@@ -16969,8 +16969,8 @@ visible = false
 
 [node name="MeetingRoomArea" type="Area2D" parent="RoomArea" groups=["room_area"]]
 script = ExtResource("30_yhhlg")
-room_name = "会议室"
-room_desc = "会议室里面有一个大显示屏、两个写字板、一个大会议桌以及四个座位"
+room_name = "Meeting Room"
+room_desc = "The meeting room has a large display screen, two whiteboards, a large conference table, and four seats"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="RoomArea/MeetingRoomArea"]
 position = Vector2(526.5, 516)
@@ -16978,8 +16978,8 @@ shape = SubResource("RectangleShape2D_f7hqq")
 
 [node name="HrOfficeRoomArea" type="Area2D" parent="RoomArea" groups=["room_area"]]
 script = ExtResource("30_yhhlg")
-room_name = "HR办公室"
-room_desc = "HR办公室有两个HR的座位，一个面试者座位，HR办公桌前面是一大堆的面试者简历"
+room_name = "HR Office"
+room_desc = "The HR office has two HR seats and one seat for interviewees; in front of the HR desk is a huge pile of interviewee resumes"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="RoomArea/HrOfficeRoomArea"]
 position = Vector2(176, 132.75)
@@ -16987,8 +16987,8 @@ shape = SubResource("RectangleShape2D_yhhlg")
 
 [node name="ToiletRoomArea" type="Area2D" parent="RoomArea" groups=["room_area"]]
 script = ExtResource("30_yhhlg")
-room_name = "卫生间"
-room_desc = "卫生间门口有一个洗漱台、里面有三个带马桶的隔间"
+room_name = "Restroom"
+room_desc = "There is a washbasin at the restroom entrance, and inside are three stalls with toilets"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="RoomArea/ToiletRoomArea"]
 position = Vector2(480, 54)
@@ -16996,8 +16996,8 @@ shape = SubResource("RectangleShape2D_8h615")
 
 [node name="BossOfficeRoomArea" type="Area2D" parent="RoomArea" groups=["room_area"]]
 script = ExtResource("30_yhhlg")
-room_name = "老板办公室"
-room_desc = "老板办公室里面有老板的办公桌、老板的办公桌对面是老板秘书的办公桌"
+room_name = "Boss's Office"
+room_desc = "The boss's office contains the boss's desk, and across from it is the desk of the boss's secretary"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="RoomArea/BossOfficeRoomArea"]
 position = Vector2(944, 516.5)
@@ -17005,8 +17005,8 @@ shape = SubResource("RectangleShape2D_loaku")
 
 [node name="OfficeRoomArea" type="Area2D" parent="RoomArea" groups=["room_area"]]
 script = ExtResource("30_yhhlg")
-room_name = "办公室"
-room_desc = "办公室的北半部分是财务团队办公区一共六个工位，南边是软件工程师办公区共八个工位"
+room_name = "Main Office"
+room_desc = "The northern half of the main office is the finance team's area with six workstations; the southern half is the software engineers' area with eight workstations"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="RoomArea/OfficeRoomArea"]
 position = Vector2(896, 213.5)
@@ -17014,8 +17014,8 @@ shape = SubResource("RectangleShape2D_rryi1")
 
 [node name="GymRoomArea" type="Area2D" parent="RoomArea" groups=["room_area"]]
 script = ExtResource("30_yhhlg")
-room_name = "健身房"
-room_desc = "健身房里面有瑜伽垫、瑜伽球、拳击桩、力量训练的哑铃、动感单车"
+room_name = "Gym"
+room_desc = "The gym has yoga mats, yoga balls, a punching bag, dumbbells for strength training, and spin bikes"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="RoomArea/GymRoomArea"]
 position = Vector2(479.5, 324.5)
@@ -17023,8 +17023,8 @@ shape = SubResource("RectangleShape2D_qy4lc")
 
 [node name="TeaRoomArea" type="Area2D" parent="RoomArea" groups=["room_area"]]
 script = ExtResource("30_yhhlg")
-room_name = "茶水间"
-room_desc = "茶水间是一个长廊，西边连通HR办公室、东边连通员工办公室、正中间有一个饮料自动贩卖机、贩卖机西边有一个饮水机、东边有一个咖啡机"
+room_name = "Pantry"
+room_desc = "The pantry is a long corridor that connects to the HR Office on the west and the Main Office on the east; in the middle is a drink vending machine, with a water dispenser to its west and a coffee machine to its east"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="RoomArea/TeaRoomArea"]
 position = Vector2(480, 166)
@@ -17032,8 +17032,8 @@ shape = SubResource("RectangleShape2D_10dvn")
 
 [node name="ReceptionRoomArea" type="Area2D" parent="RoomArea" groups=["room_area"]]
 script = ExtResource("30_yhhlg")
-room_name = "接待处"
-room_desc = "接待处有一个前台"
+room_name = "Reception"
+room_desc = "The reception area has a front desk"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="RoomArea/ReceptionRoomArea"]
 position = Vector2(176, 516)
@@ -17041,8 +17041,8 @@ shape = SubResource("RectangleShape2D_jkaac")
 
 [node name="WaitingHallRoomArea" type="Area2D" parent="RoomArea" groups=["room_area"]]
 script = ExtResource("30_yhhlg")
-room_name = "等候大厅"
-room_desc = "等候大厅有三个座位和一个自动贩卖机"
+room_name = "Waiting Lobby"
+room_desc = "The waiting lobby has three seats and a vending machine"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="RoomArea/WaitingHallRoomArea"]
 position = Vector2(176, 341.75)

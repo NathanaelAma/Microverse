@@ -1,15 +1,15 @@
 extends Node
 
-# 记忆类型枚举
+# Memory type enum
 enum MemoryType {
-	PERSONAL,      # 个人记忆
-	INTERACTION,   # 互动记忆
-	TASK,          # 任务记忆
-	EMOTION,       # 情感记忆
-	EVENT          # 事件记忆
+	PERSONAL,      # Personal memory
+	INTERACTION,   # Interaction memory
+	TASK,          # Task memory
+	EMOTION,       # Emotional memory
+	EVENT          # Event memory
 }
 
-# 记忆重要性等级
+# Memory importance levels
 enum MemoryImportance {
 	LOW = 1,
 	NORMAL = 3,
@@ -17,30 +17,30 @@ enum MemoryImportance {
 	CRITICAL = 10
 }
 
-# 获取角色的所有记忆
+# Get all memories of a character
 func get_character_memories(character: Node) -> Array:
 	if not character:
 		return []
 	
-	# 从character_data中获取记忆
+	# Read memories from character_data
 	var character_data = character.get_meta("character_data", {})
 	var memories = character_data.get("memories", [])
 	
 	return memories
 
-# 添加记忆到角色
+# Add a memory to a character
 func add_memory(character: Node, memory_content: String, memory_type: MemoryType = MemoryType.PERSONAL, importance: MemoryImportance = MemoryImportance.NORMAL) -> void:
 	if not character or memory_content.strip_edges().is_empty():
 		return
 	
-	# 获取当前时间
+	# Get the current time
 	var current_time = Time.get_datetime_dict_from_system()
 	var time_str = "%04d-%02d-%02d %02d:%02d" % [
 		current_time.year, current_time.month, current_time.day,
 		current_time.hour, current_time.minute
 	]
 	
-	# 创建记忆对象
+	# Create the memory object
 	var memory_obj = {
 		"content": memory_content,
 		"timestamp": time_str,
@@ -49,26 +49,26 @@ func add_memory(character: Node, memory_content: String, memory_type: MemoryType
 		"created_at": Time.get_unix_time_from_system()
 	}
 	
-	# 获取或创建character_data
+	# Get or create character_data
 	var character_data = character.get_meta("character_data", {})
 	if not character_data.has("memories"):
 		character_data["memories"] = []
 	
-	# 添加记忆
+	# Append the memory
 	character_data["memories"].append(memory_obj)
 	character.set_meta("character_data", character_data)
 	
-	# 清理旧记忆，保持记忆数量在合理范围内
+	# Prune old memories to keep the count within a reasonable range
 	_cleanup_old_memories(character)
 
-# 获取格式化的记忆文本（用于AI prompt）
+# Get formatted memory text (for AI prompts)
 func get_formatted_memories_for_prompt(character: Node, max_count: int = -1) -> String:
 	var memories = get_character_memories(character)
 	
 	if memories.is_empty():
-		return "\n\n记忆信息：\n- 暂无重要记忆"
+		return "\n\nMemories:\n- No important memories yet"
 	
-	# 转换记忆格式并按重要性和时间排序
+	# Convert memory format and sort by importance and time
 	var formatted_memories = []
 	for memory in memories:
 		var formatted_memory = _format_memory_for_display(memory)
@@ -79,31 +79,31 @@ func get_formatted_memories_for_prompt(character: Node, max_count: int = -1) -> 
 				"timestamp": _get_memory_timestamp(memory)
 			})
 	
-	# 按重要性排序，重要性相同时按时间排序（最新的在前）
+	# Sort by importance; for equal importance sort by time (newest first)
 	formatted_memories.sort_custom(func(a, b): 
 		if a.importance != b.importance:
 			return a.importance > b.importance
 		return a.timestamp > b.timestamp
 	)
 	
-	# 构建prompt文本
-	var prompt_text = "\n\n记忆信息："
+	# Build the prompt text
+	var prompt_text = "\n\nMemories:"
 	var display_count = formatted_memories.size() if max_count == -1 else min(max_count, formatted_memories.size())
 	
 	for i in range(display_count):
 		prompt_text += "\n- " + formatted_memories[i].text
 	
 	if max_count != -1 and formatted_memories.size() > display_count:
-		prompt_text += "\n- ...还有 %d 条其他记忆" % (formatted_memories.size() - display_count)
+		prompt_text += "\n- ...and %d more memories" % (formatted_memories.size() - display_count)
 	
 	return prompt_text
 
-# 获取最近的记忆（用于对话历史）
+# Get recent memories (for conversation history)
 func get_recent_memories(character: Node, hours: int = 24) -> Array:
 	var memories = get_character_memories(character)
 	var recent_memories = []
 	var current_time = Time.get_unix_time_from_system()
-	var time_threshold = current_time - (hours * 3600)  # 转换为秒
+	var time_threshold = current_time - (hours * 3600)  # Convert to seconds
 	
 	for memory in memories:
 		var memory_time = _get_memory_timestamp(memory)
@@ -112,7 +112,7 @@ func get_recent_memories(character: Node, hours: int = 24) -> Array:
 	
 	return recent_memories
 
-# 搜索相关记忆
+# Search for relevant memories
 func search_memories(character: Node, keywords: Array) -> Array:
 	var memories = get_character_memories(character)
 	var relevant_memories = []
@@ -126,7 +126,7 @@ func search_memories(character: Node, keywords: Array) -> Array:
 	
 	return relevant_memories
 
-# 清理旧记忆，保持记忆数量在合理范围内
+# Prune old memories to keep the count within a reasonable range
 func _cleanup_old_memories(character: Node, max_memories: int = 50) -> void:
 	var character_data = character.get_meta("character_data", {})
 	var memories = character_data.get("memories", [])
@@ -134,7 +134,7 @@ func _cleanup_old_memories(character: Node, max_memories: int = 50) -> void:
 	if memories.size() <= max_memories:
 		return
 	
-	# 按重要性和时间排序，保留最重要和最新的记忆
+	# Sort by importance and time, keeping the most important and newest memories
 	var sorted_memories = []
 	for memory in memories:
 		sorted_memories.append({
@@ -149,7 +149,7 @@ func _cleanup_old_memories(character: Node, max_memories: int = 50) -> void:
 		return a.timestamp > b.timestamp
 	)
 	
-	# 保留前max_memories个记忆
+	# Keep the first max_memories memories
 	var kept_memories = []
 	for i in range(min(max_memories, sorted_memories.size())):
 		kept_memories.append(sorted_memories[i].data)
@@ -157,7 +157,7 @@ func _cleanup_old_memories(character: Node, max_memories: int = 50) -> void:
 	character_data["memories"] = kept_memories
 	character.set_meta("character_data", character_data)
 
-# 格式化记忆用于显示
+# Format a memory for display
 func _format_memory_for_display(memory: Dictionary) -> String:
 	var content = memory.get("content", "")
 	var timestamp = memory.get("timestamp", "")
@@ -166,10 +166,10 @@ func _format_memory_for_display(memory: Dictionary) -> String:
 	else:
 		return "[%s] %s" % [timestamp, content]
 
-# 获取记忆的重要性
+# Get a memory's importance
 func _get_memory_importance(memory: Dictionary) -> int:
 	return memory.get("importance", MemoryImportance.NORMAL)
 
-# 获取记忆的时间戳
+# Get a memory's timestamp
 func _get_memory_timestamp(memory: Dictionary) -> float:
 	return memory.get("created_at", 0.0)

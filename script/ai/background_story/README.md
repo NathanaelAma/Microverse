@@ -1,143 +1,149 @@
-# 故事背景管理系统
+# Story Background Management System
 
-## 概述
+## Overview
 
-故事背景管理系统允许根据不同的地图设置不同的故事背景，并支持用户在 GodUI 界面中额外设置社会规则。最终故事背景和社会规则都会被集成到 AI 对话的 prompt 中。
+The story background management system lets each map have its own story background, and lets users add extra social rules through the GodUI. Both the story background and the social rules are ultimately integrated into the AI dialog prompts.
 
-## 文件结构
+## File Structure
 
 ```
 script/ai/background_story/
-├── BackgroundStoryManager.gd    # 核心管理类
-├── BackgroundStoryUI.gd         # UI组件类（可选）
-└── README.md                    # 本文档
+├── BackgroundStoryManager.gd    # Core manager class
+├── BackgroundStoryUI.gd         # UI component class (optional)
+└── README.md                    # This document
 ```
 
-## 核心功能
+## Core Features
 
-### 1. 预设故事背景
+### 1. Preset Story Backgrounds
 
-系统预设了三种地图的故事背景：
-- **Office（办公室）**: 现代企业办公环境
-- **School（学校）**: 教育机构环境
-- **Jail（监狱）**: 监狱管理环境
+The system comes with story backgrounds for three maps:
+- **Office**: a modern corporate office environment
+- **School**: an educational institution environment
+- **Jail**: a prison management environment
 
-每种背景包含：
-- 地图名称
-- 机构名称
-- 背景描述
-- 预设社会规则
+Each background includes:
+- Map name
+- Organization name
+- Background description (organization, environment, time period, cultural context, economic situation)
+- Preset social rules
 
-### 2. 自定义社会规则
+### 2. Custom Social Rules
 
-用户可以通过 GodUI 界面添加、删除、清空自定义社会规则，这些规则会与预设规则一起应用到 AI 对话中。
+Users can add, remove, and clear custom social rules through the GodUI. These rules are applied to AI dialog together with the preset rules.
 
-## API 接口
+## API
 
-### BackgroundStoryManager 静态方法
+### BackgroundStoryManager Static Methods
 
-#### 基础操作
+#### Basic Operations
 
 ```gdscript
-# 设置当前故事背景
-BackgroundStoryManager.set_background(map_name: String) -> bool
+# Initialize the manager (defaults to the Office background)
+BackgroundStoryManager.initialize(map_name: String = "Office")
 
-# 获取故事背景信息
-BackgroundStoryManager.get_background(map_name: String) -> StoryBackground
+# Set the current story background (falls back to Office for unknown maps)
+BackgroundStoryManager.set_background(map_name: String)
 
-# 获取可用地图列表
+# Get the list of available maps
 BackgroundStoryManager.get_available_maps() -> Array[String]
+
+# Check whether a map has a background config
+BackgroundStoryManager.is_map_available(map_name: String) -> bool
 ```
 
-#### 当前状态获取
+#### Current State
 
 ```gdscript
-# 获取当前地图名称
+# Get the current map name
 BackgroundStoryManager.get_current_map_name() -> String
 
-# 获取当前公司名称
+# Get the current organization name
 BackgroundStoryManager.get_current_company_name() -> String
 
-# 获取当前背景描述
+# Get the current background description
 BackgroundStoryManager.get_current_background_description() -> String
 ```
 
-#### 规则管理
+#### Rule Management
 
 ```gdscript
-# 获取预设规则
+# Get preset rules
 BackgroundStoryManager.get_preset_rules() -> Array[String]
 
-# 获取自定义规则
+# Get custom rules
 BackgroundStoryManager.get_custom_rules() -> Array[String]
 
-# 获取所有规则（预设+自定义）
+# Get all rules (preset + custom)
 BackgroundStoryManager.get_all_rules() -> Array[String]
 
-# 添加自定义规则
-BackgroundStoryManager.add_custom_rule(rule: String) -> bool
+# Add a custom rule (returns false for an empty rule)
+BackgroundStoryManager.add_custom_rule(rule: String)
 
-# 移除自定义规则
-BackgroundStoryManager.remove_custom_rule(index: int) -> bool
+# Remove a custom rule (returns false for an invalid index)
+BackgroundStoryManager.remove_custom_rule(index: int)
 
-# 清空所有自定义规则
+# Clear all custom rules
 BackgroundStoryManager.clear_custom_rules()
 ```
 
-#### Prompt 生成
+#### Prompt Generation
 
 ```gdscript
-# 生成完整的背景和规则 prompt
+# Generate the full background and rules prompt
 BackgroundStoryManager.generate_background_prompt() -> String
 
-# 获取背景摘要信息
+# Get the background info section used in prompts
+BackgroundStoryManager.get_background_info_for_prompt() -> String
+
+# Get summary info about the background
 BackgroundStoryManager.get_background_summary() -> Dictionary
 ```
 
-#### 数据持久化
+#### Data Persistence
 
 ```gdscript
-# 保存自定义规则到文件
-BackgroundStoryManager.save_custom_rules(file_path: String) -> bool
+# Save custom rules to user://custom_social_rules.json
+BackgroundStoryManager.save_custom_rules()
 
-# 从文件加载自定义规则
-BackgroundStoryManager.load_custom_rules(file_path: String) -> bool
+# Load custom rules from user://custom_social_rules.json
+BackgroundStoryManager.load_custom_rules()
 ```
 
-## 使用示例
+## Usage Examples
 
-### 1. 在地图选择时设置背景
+### 1. Setting the background when a map is selected
 
 ```gdscript
-# 在 MapSelection.gd 中
+# In MapSelection.gd
 func _on_office_selected():
-    # 设置办公室故事背景
+    # Set the office story background
     BackgroundStoryManager.set_background("Office")
-    # 加载场景
+    # Load the scene
     get_tree().change_scene_to_file("res://scene/maps/Office.tscn")
 ```
 
-### 2. 在 AI 对话中使用背景
+### 2. Using the background in AI dialog
 
 ```gdscript
-# 在 ConversationManager.gd 中
+# In ConversationManager.gd
 func build_dialog_prompt(...):
-    # 获取故事背景和社会规则
+    # Get the story background and social rules
     var background_prompt = BackgroundStoryManager.generate_background_prompt()
     
-    var prompt = "你是一个员工..."
+    var prompt = "You are an employee..."
     
-    # 添加故事背景和社会规则
+    # Add the story background and social rules
     if not background_prompt.is_empty():
         prompt += "\n\n" + background_prompt
     
-    # 继续构建其他 prompt 内容...
+    # Continue building the rest of the prompt...
 ```
 
-### 3. 在 UI 中管理规则
+### 3. Managing rules in the UI
 
 ```gdscript
-# 在 GodUI.gd 中
+# In GodUI.gd
 func _on_background_pressed():
     background_popup.popup_centered()
     _init_background_popup()
@@ -149,77 +155,85 @@ func _on_add_rule_pressed():
         _update_custom_rules_display()
 ```
 
-## 数据结构
+## Data Structures
 
-### StoryBackground 类
+### StoryBackground class
 
 ```gdscript
 class StoryBackground:
-    var map_name: String          # 地图名称
-    var company_name: String      # 机构名称
-    var background_description: String  # 背景描述
-    var preset_rules: Array[String]     # 预设规则列表
+    var map_name: String                 # Map name
+    var company_name: String             # Organization name
+    var background_description: String   # Background description
+    var preset_rules: Array[String]      # List of preset rules
 ```
 
-### SocialRule 类
+### SocialRule class
 
 ```gdscript
 class SocialRule:
-    var rule_text: String        # 规则文本
-    var is_custom: bool          # 是否为自定义规则
+    var rule_text: String        # Rule text
+    var is_custom: bool          # Whether this is a custom rule
 ```
 
-## 预设配置
+## Preset Configurations
 
-### Office（办公室）
-- **机构名称**: 创新科技有限公司
-- **背景**: 现代化办公环境，注重效率和团队协作
-- **预设规则**: 工作时间规范、会议礼仪、着装要求等
+### Office
+- **Organization**: CountSheep Game Company
+- **Background**: A modern office environment that values efficiency and teamwork
+- **Preset rules**: Professional conduct during working hours, meeting room booking, keeping work areas tidy, etc.
 
-### School（学校）
-- **机构名称**: 阳光中学
-- **背景**: 教育机构环境，师生关系和谐
-- **预设规则**: 课堂纪律、师生礼仪、学习规范等
+### School
+- **Organization**: Sunshine Academy
+- **Background**: An educational institution with harmonious teacher-student relationships
+- **Preset rules**: Classroom discipline, respect for teachers and classmates, study habits, etc.
 
-### Jail（监狱）
-- **机构名称**: 第一监狱
-- **背景**: 严格管理的监狱环境
-- **预设规则**: 监狱纪律、安全规定、行为规范等
+### Jail
+- **Organization**: New Hope Prison
+- **Background**: A strictly managed prison environment focused on rehabilitation
+- **Preset rules**: Prison discipline, safety regulations, codes of conduct, etc.
 
-## 扩展指南
+## Extension Guide
 
-### 添加新的地图背景
+### Adding a new map background
 
-1. 在 `BackgroundStoryManager.gd` 的 `story_backgrounds` 字典中添加新配置：
+1. Add a new entry to the `BACKGROUND_CONFIGS` dictionary in `BackgroundStoryManager.gd`:
 
 ```gdscript
-static var story_backgrounds = {
-    "NewMap": StoryBackground.new(
-        "NewMap",
-        "新机构名称",
-        "新的背景描述...",
-        ["规则1", "规则2", "规则3"]
-    )
+static var BACKGROUND_CONFIGS = {
+    # ...existing maps...
+    "NewMap": {
+        "company_name": "New Organization Name",
+        "company_description": "A description of the organization...",
+        "environment_description": "A description of the environment...",
+        "time_period": "Modern day (2024)",
+        "cultural_context": "The cultural context...",
+        "economic_situation": "The economic situation...",
+        "social_rules": [
+            "Rule 1",
+            "Rule 2",
+            "Rule 3"
+        ]
+    }
 }
 ```
 
-2. 在地图选择界面调用 `BackgroundStoryManager.set_background("NewMap")`
+2. Call `BackgroundStoryManager.set_background("NewMap")` from the map selection screen
 
-### 自定义 UI 组件
+### Custom UI components
 
-可以使用 `BackgroundStoryUI.gd` 作为参考，创建自定义的故事背景管理界面。
+You can use `BackgroundStoryUI.gd` as a reference to build your own story background management UI.
 
-## 注意事项
+## Notes
 
-1. **线程安全**: 所有方法都是静态的，可以在任何地方安全调用
-2. **数据持久化**: 自定义规则会在游戏会话中保持，但需要手动保存到文件以实现跨会话持久化
-3. **性能考虑**: prompt 生成是实时的，频繁调用时注意性能影响
-4. **错误处理**: 所有方法都包含适当的错误检查和默认值处理
+1. **Static access**: All methods are static and can be called from anywhere
+2. **Data persistence**: Custom rules are saved to `user://custom_social_rules.json` automatically whenever they are added, removed, or cleared, and are reloaded when a background is set
+3. **Performance**: Prompts are generated on the fly, so be mindful of performance if they are generated very frequently
+4. **Error handling**: Methods include basic error checks and sensible defaults
 
-## 更新日志
+## Changelog
 
-- **v1.0**: 初始版本，支持基础的故事背景和社会规则管理
-- 预设三种地图背景（Office、School、Jail）
-- 支持自定义社会规则的增删改查
-- 集成到 AI 对话 prompt 生成中
-- 提供完整的 GodUI 界面支持
+- **v1.0**: Initial version with basic story background and social rule management
+- Preset backgrounds for three maps (Office, School, Jail)
+- Add, remove, and clear custom social rules
+- Integrated into AI dialog prompt generation
+- Full GodUI support
